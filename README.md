@@ -27,7 +27,7 @@ Intellex is being developed as a modular monolith with:
 intellex/
 ├── backend/
 ├── frontend/
-├── infrastructure/
+├── infrastructure/xxx
 ├── docs/
 ├── scripts/
 └── .github/ 
