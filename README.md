@@ -21,13 +21,3 @@ Intellex is being developed as a modular monolith with:
 - Background workers
 - LLM integration
 
-## Repository Structure
-
-```text
-intellex/
-├── backend/
-├── frontend/
-├── infrastructure/xxx
-├── docs/
-├── scripts/
-└── .github/ 
