@@ -12,7 +12,7 @@ Intellex is an AI-powered knowledge management platform that allows users and te
 
 Intellex is being developed as a modular monolith with:
 
-- Next.js frontend
+- Vite + React frontend
 - FastAPI backend
 - PostgreSQL
 - Redis

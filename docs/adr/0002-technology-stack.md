@@ -44,7 +44,7 @@ Intellex will use the following primary technology stack.
 
 | Layer                 | Technology                        |
 | --------------------- | --------------------------------- |
-| Frontend Framework    | Next.js                           |
+| Frontend Framework    | Vite + React                      |
 | Frontend Language     | TypeScript                        |
 | Frontend Styling      | Tailwind CSS                      |
 | UI Components         | shadcn/ui                         |
@@ -85,21 +85,19 @@ Major changes to these decisions should be documented through a new or updated A
 
 # 3. Frontend Stack
 
-## 3.1 Next.js
+## 3.1 Vite + React
 
-Intellex will use **Next.js** as the frontend framework.
+Intellex will use **Vite + React** as the frontend stack.
 
 ### Responsibilities
 
-Next.js will provide:
+React will provide:
 
-* application routing
-* layouts
+* component-based UI architecture
 * page composition
 * frontend rendering
-* server/client component architecture where appropriate
-* production frontend build
-* frontend application structure
+* state management
+* production frontend build (via Vite)
 
 The frontend will communicate with the FastAPI backend through the REST API.
 
@@ -109,16 +107,16 @@ Architecture:
 User
  │
  ▼
-Next.js
+React + Vite
  │
  │ HTTPS
  ▼
 FastAPI REST API
 ```
 
-### Why Next.js?
+### Why Vite + React?
 
-Intellex is a full SaaS application rather than a simple static React application.
+Intellex is a full SaaS application served as a single-page application backed by the FastAPI REST API.
 
 The application will contain:
 
@@ -131,7 +129,7 @@ The application will contain:
 * settings
 * potentially public-facing pages
 
-Next.js provides a mature application framework around React and gives Intellex a structured routing and rendering model.
+Vite provides a fast, modern build toolchain, and React provides a mature component model for building the Intellex interface. The frontend is purely client-rendered and does not require server-side rendering or a full application framework.
 
 ---
 
@@ -876,7 +874,7 @@ Conceptually:
         ┌───────────────┼────────────────┐
         │               │                │
         ▼               ▼                ▼
-    Next.js          FastAPI         Infrastructure
+    Vite + React    FastAPI         Infrastructure
                                          │
                               ┌──────────┼──────────┐
                               ▼          ▼          ▼
@@ -1066,7 +1064,7 @@ The selected stack provides:
 The technologies also work well together:
 
 ```text
-Next.js
+Vite + React
    │
    ▼
 FastAPI
@@ -1208,7 +1206,7 @@ Intellex will use a modern, production-oriented stack centered around:
 
 ```text
 Frontend
-    Next.js + TypeScript
+    Vite + React + TypeScript
             │
             ▼
 Backend
