@@ -1,1 +1,150 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, monospace;
+
+  /* Semantic UI Colors mapped to CSS variables */
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-elevated: var(--bg-elevated);
+  --color-overlay: var(--bg-overlay);
+  --color-subtle: var(--bg-subtle);
+
+  /* Semantic Typography Colors */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-text-disabled: var(--text-disabled);
+  --color-text-inverse: var(--text-inverse);
+
+  /* Semantic Borders */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-default: var(--border-default);
+  --color-border-strong: var(--border-strong);
+  --color-border-accent: var(--border-accent);
+
+  /* Brand Scale (Sapphire / Electric Indigo AI) */
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+  --color-brand-950: #1e1b4b;
+
+  /* Feedback Colors */
+  --color-success: var(--feedback-success);
+  --color-warning: var(--feedback-warning);
+  --color-danger: var(--feedback-danger);
+  --color-info: var(--feedback-info);
+
+  /* AI Accents */
+  --color-ai-sparkle: #8b5cf6;
+  --color-ai-cyan: #06b6d4;
+
+  /* Border Radii */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Transitions & Springs */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-cubic: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-out-quad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Light Mode Tokens (Default Root) */
+:root {
+  --bg-canvas: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --bg-elevated: #ffffff;
+  --bg-overlay: rgba(15, 23, 42, 0.5);
+  --bg-subtle: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-disabled: #94a3b8;
+  --text-inverse: #f8fafc;
+
+  --border-subtle: #f1f5f9;
+  --border-default: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --border-accent: #6366f1;
+
+  --feedback-success: #059669;
+  --feedback-warning: #d97706;
+  --feedback-danger: #dc2626;
+  --feedback-info: #0284c7;
+
+  --ai-glow: rgba(99, 102, 241, 0.12);
+  --ai-border: rgba(99, 102, 241, 0.25);
+}
+
+/* Dark Mode Tokens (Knowva Enterprise Dark) */
+.dark {
+  --bg-canvas: #070b14;
+  --bg-surface: #0f172a;
+  --bg-surface-hover: #1e293b;
+  --bg-elevated: #162032;
+  --bg-overlay: rgba(0, 0, 0, 0.75);
+  --bg-subtle: #111827;
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-disabled: #475569;
+  --text-inverse: #0f172a;
+
+  --border-subtle: #1e293b;
+  --border-default: #334155;
+  --border-strong: #475569;
+  --border-accent: #818cf8;
+
+  --feedback-success: #10b981;
+  --feedback-warning: #f59e0b;
+  --feedback-danger: #ef4444;
+  --feedback-info: #0ea5e9;
+
+  --ai-glow: rgba(99, 102, 241, 0.3);
+  --ai-border: rgba(168, 85, 247, 0.4);
+}
+
+/* Base Body Styles */
+html, body {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* Custom Utilities for Knowva Design System */
+.ai-glass {
+  background: radial-gradient(100% 100% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.0) 100%);
+  backdrop-filter: blur(12px);
+}
+
+.ai-gradient-text {
+  background: linear-gradient(135deg, #6366F1 0%, #A855F7 50%, #EC4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.ai-border-glow {
+  border: 1px solid var(--ai-border);
+  box-shadow: 0 0 20px -4px var(--ai-glow);
+}
