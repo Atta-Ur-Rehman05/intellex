@@ -14,10 +14,11 @@ import { cn } from './lib/utils';
 import { ToastProvider } from './components/ui/Toast';
 import { Stage3View } from './components/Stage3View';
 import { Stage4View } from './components/Stage4View';
+import { Stage5View } from './components/Stage5View';
 
 export default function App() {
   const [theme, setTheme] = useState('dark');
-  const [currentStage, setCurrentStage] = useState('stage4'); // 'stage1' | 'stage2' | 'stage3' | 'stage4'
+  const [currentStage, setCurrentStage] = useState('stage5'); // 'stage1' | 'stage2' | 'stage3' | 'stage4' | 'stage5'
   
   // Stage 1 State
   const [stage1Tab, setStage1Tab] = useState('colors');
@@ -86,7 +87,9 @@ export default function App() {
                     ? 'Stage 2: IA & Flows' 
                     : currentStage === 'stage3' 
                     ? 'Stage 3: Component Library' 
-                    : 'Stage 4: App Shell & Global Nav'}
+                    : currentStage === 'stage4'
+                    ? 'Stage 4: App Shell & Nav'
+                    : 'Stage 5: Marketing & Auth Suite'}
                 </span>
               </div>
               <p className="text-xs text-secondary hidden sm:block">Enterprise AI Knowledge Workspace</p>
@@ -132,14 +135,25 @@ export default function App() {
               <button
                 onClick={() => setCurrentStage('stage4')}
                 className={cn(
-                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap",
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 whitespace-nowrap",
                   currentStage === 'stage4'
                     ? "bg-brand-600 text-white shadow-xs"
                     : "text-secondary hover:text-primary"
                 )}
               >
                 <span>Stage 4: App Shell</span>
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+              </button>
+              <button
+                onClick={() => setCurrentStage('stage5')}
+                className={cn(
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap",
+                  currentStage === 'stage5'
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-secondary hover:text-primary"
+                )}
+              >
+                <span>Stage 5: Marketing & Auth</span>
+                <span className="h-1.5 w-1.5 rounded-full bg-pink-400 animate-ping" />
               </button>
             </div>
 
@@ -165,7 +179,7 @@ export default function App() {
         </div>
 
         {/* Sub-navigation Tabs */}
-        {currentStage !== 'stage3' && currentStage !== 'stage4' && (
+        {currentStage !== 'stage3' && currentStage !== 'stage4' && currentStage !== 'stage5' && (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto no-scrollbar border-t border-border-subtle">
             {currentStage === 'stage1' ? (
               stage1Tabs.map((tab) => {
@@ -214,6 +228,13 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* ========================================================================= */}
+        {/* STAGE 5 VIEWS (PUBLIC MARKETING & AUTHENTICATION SUITE)                    */}
+        {/* ========================================================================= */}
+        {currentStage === 'stage5' && (
+          <Stage5View theme={theme} onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
+        )}
 
         {/* ========================================================================= */}
         {/* STAGE 4 VIEWS (APP SHELL & GLOBAL NAVIGATION)                              */}
