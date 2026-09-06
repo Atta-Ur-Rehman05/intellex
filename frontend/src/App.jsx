@@ -8,6 +8,7 @@ import { ToastProvider, useToast } from './components/ui/Toast';
 import { AppShell } from './components/shell/AppShell';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 import { DocumentExplorerPage } from './components/documents/DocumentExplorerPage';
+import { ChatPage } from './components/chat/ChatPage';
 import { MarketingLayout } from './components/marketing/MarketingLayout';
 import { LandingPage } from './components/marketing/LandingPage';
 import { PricingPage } from './components/marketing/PricingPage';
@@ -28,6 +29,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState('app'); // 'app' | 'public'
   const [appRoute, setAppRoute] = useState('dashboard'); // 'dashboard' | 'docs' | 'chat' | 'settings'
   const [publicPage, setPublicPage] = useState('landing'); // 'landing' | 'pricing' | 'features' | 'login' | 'register' | 'verify' | 'forgot'
+  const [activeChatDoc, setActiveChatDoc] = useState(null);
   const [isDevDrawerOpen, setIsDevDrawerOpen] = useState(false);
 
   useEffect(() => {
@@ -76,7 +78,10 @@ export default function App() {
             {/* Master Dashboard (Prompt 6) */}
             {appRoute === 'dashboard' && (
               <DashboardPage
-                onNavigateToChat={() => setAppRoute('chat')}
+                onNavigateToChat={(doc) => {
+                  setActiveChatDoc(doc || null);
+                  setAppRoute('chat');
+                }}
                 onNavigateToDocs={() => setAppRoute('docs')}
               />
             )}
@@ -85,34 +90,18 @@ export default function App() {
             {appRoute === 'docs' && (
               <DocumentExplorerPage
                 onNavigateToChat={(doc) => {
+                  setActiveChatDoc(doc || null);
                   setAppRoute('chat');
                 }}
               />
             )}
 
-            {/* AI Chat & RAG Experience (Roadmap: Prompt 8 Preview) */}
+            {/* AI Chat & RAG Experience (Prompt 8) */}
             {appRoute === 'chat' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-primary">AI Chat & RAG Experience</h1>
-                    <p className="text-xs text-secondary mt-1">
-                      Multi-turn conversational knowledge synthesis with verifiable vector citations and streaming tokens.
-                    </p>
-                  </div>
-                  <Badge variant="brand" dot>Prompt 8 (Roadmap)</Badge>
-                </div>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">RAG Engine Live Context</CardTitle>
-                    <CardDescription className="text-xs">Zero customer data retention verified by SOC2 audit</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-xs text-secondary">
-                    Full streaming responses, syntax-highlighted code blocks, and source citations will be built in Stage 8.
-                  </CardContent>
-                </Card>
-              </div>
+              <ChatPage
+                initialDocContext={activeChatDoc}
+                onNavigateToDocs={(docId) => setAppRoute('docs')}
+              />
             )}
 
             {/* Workspace Settings */}
