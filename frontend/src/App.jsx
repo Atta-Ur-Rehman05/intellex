@@ -9,6 +9,7 @@ import { AppShell } from './components/shell/AppShell';
 import { DashboardPage } from './components/dashboard/DashboardPage';
 import { DocumentExplorerPage } from './components/documents/DocumentExplorerPage';
 import { ChatPage } from './components/chat/ChatPage';
+import { SemanticSearchPage } from './components/search/SemanticSearchPage';
 import { MarketingLayout } from './components/marketing/MarketingLayout';
 import { LandingPage } from './components/marketing/LandingPage';
 import { PricingPage } from './components/marketing/PricingPage';
@@ -100,6 +101,17 @@ export default function App() {
             {appRoute === 'chat' && (
               <ChatPage
                 initialDocContext={activeChatDoc}
+                onNavigateToDocs={(docId) => setAppRoute('docs')}
+              />
+            )}
+
+            {/* Global & Semantic Search Workbench (Prompt 9) */}
+            {appRoute === 'search' && (
+              <SemanticSearchPage
+                onNavigateToChat={(doc) => {
+                  setActiveChatDoc(doc || null);
+                  setAppRoute('chat');
+                }}
                 onNavigateToDocs={(docId) => setAppRoute('docs')}
               />
             )}

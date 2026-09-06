@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { TopNav } from './TopNav';
-import { CommandPalette } from './CommandPalette';
+import { GlobalSearchModal } from '../search/GlobalSearchModal';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
@@ -32,12 +32,16 @@ export const AppShell = ({
   const [inviteRole, setInviteRole] = useState('editor');
   const { toast } = useToast();
 
-  // Keyboard shortcut listener for ⌘B (toggle sidebar)
+  // Keyboard shortcut listener for ⌘B (toggle sidebar) and ⌘K (search palette)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
         e.preventDefault();
         setIsSidebarCollapsed(prev => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen(prev => !prev);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -61,10 +65,6 @@ export const AppShell = ({
   ];
 
   const handleNavChange = (navId) => {
-    if (navId === 'search') {
-      setIsCommandPaletteOpen(true);
-      return;
-    }
     onRouteChange?.(navId);
     setIsMobileDrawerOpen(false);
   };
@@ -158,25 +158,27 @@ export const AppShell = ({
         </main>
       </div>
 
-      {/* Global ⌘K Command Palette Overlay */}
-      <CommandPalette
+      {/* Global ⌘K Spotlight Search Modal */}
+      <GlobalSearchModal
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
-        onSelectItem={(item) => {
-          if (item.type === 'PDF' || item.type === 'Markdown' || item.type === 'JSON') {
-            handleSelectDocument(item.id, item.title);
-          } else if (item.id === 'act-chat') {
-            onRouteChange?.('chat');
-          } else if (item.id === 'act-invite') {
-            setIsInviteModalOpen(true);
-          } else if (item.id === 'act-settings') {
-            onRouteChange?.('settings');
-          }
+        onSelectResult={(item) => {
+          onRouteChange?.('search');
           toast({
-            title: `Navigated to ${item.title}`,
-            description: item.section || "Command executed",
+            title: `Selected "${item.docTitle}"`,
+            description: item.heading,
             type: "info"
           });
+        }}
+        onOpenFullSearch={(query) => {
+          onRouteChange?.('search');
+        }}
+        onNavigate={(path, extra) => {
+          if (path === 'chat') onRouteChange?.('chat');
+          else if (path === 'docs') onRouteChange?.('docs');
+          else if (path === 'dashboard') onRouteChange?.('dashboard');
+          else if (path === 'settings') onRouteChange?.('settings');
+          else if (path === 'search') onRouteChange?.('search');
         }}
       />
 

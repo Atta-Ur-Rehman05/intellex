@@ -12,10 +12,11 @@ import { Stage5View } from './Stage5View';
 import { Stage6View } from './Stage6View';
 import { Stage7View } from './Stage7View';
 import { Stage8View } from './Stage8View';
+import { Stage9View } from './Stage9View';
 import { cn } from '../lib/utils';
 
 export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNavigateToChat, onNavigateToDocs }) => {
-  const [selectedStage, setSelectedStage] = useState('stage8');
+  const [selectedStage, setSelectedStage] = useState('stage9');
 
   if (!isOpen) return null;
 
@@ -28,6 +29,7 @@ export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNaviga
     { id: 'stage6', label: 'Prompt 6: Main Dashboard & Analytics', icon: LayoutDashboard },
     { id: 'stage7', label: 'Prompt 7: Document Explorer & Upload', icon: Folder },
     { id: 'stage8', label: 'Prompt 8: AI Chat & RAG Experience', icon: Sparkles },
+    { id: 'stage9', label: 'Prompt 9: Global & Semantic Search', icon: Sliders },
   ];
 
   return (
@@ -106,6 +108,12 @@ export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNaviga
           )}
           {selectedStage === 'stage8' && (
             <Stage8View onNavigateToDocs={onNavigateToDocs} />
+          )}
+          {selectedStage === 'stage9' && (
+            <Stage9View 
+              onNavigateToChat={onNavigateToChat} 
+              onNavigateToDocs={onNavigateToDocs} 
+            />
           )}
         </div>
       </div>
