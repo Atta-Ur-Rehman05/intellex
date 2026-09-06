@@ -51,6 +51,14 @@ const NotFoundPage = () => (
   </div>
 );
 
+const NotFoundInline = () => (
+  <ErrorScreen
+    code={404}
+    onPrimaryAction={() => window.location.href = '/app/dashboard'}
+    onSecondaryAction={() => window.location.href = '/'}
+  />
+);
+
 export default function App() {
   return (
     <ThemeProvider>
@@ -71,6 +79,7 @@ export default function App() {
               <Route path="chat" element={<ChatPage />} />
               <Route path="chat/:conversationId" element={<ChatPage />} />
               <Route path="settings" element={<SettingsPage />} />
+              <Route path="*" element={<NotFoundInline />} />
             </Route>
 
             {/* Fallback */}

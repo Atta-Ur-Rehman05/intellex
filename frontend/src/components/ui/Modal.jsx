@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from './Button';

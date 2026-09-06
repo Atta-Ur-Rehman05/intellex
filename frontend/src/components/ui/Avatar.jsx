@@ -1,5 +1,4 @@
-import React from 'react';
-import { Sparkles, Crown, Shield } from 'lucide-react';
+import { Crown, Shield } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Tooltip } from './Tooltip';
 

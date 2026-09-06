@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Copy, Check, Code2 } from 'lucide-react';
 import { useToast } from '../ui/Toast';
 
