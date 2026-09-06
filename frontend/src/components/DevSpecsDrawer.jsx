@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { 
   Sliders, X, Layers, Code2, GitBranch, 
   Layout, Globe, LayoutDashboard, ChevronRight,
-  Sparkles, ExternalLink, Folder 
+  Sparkles, ExternalLink, Folder, ShieldCheck, AlertTriangle 
 } from 'lucide-react';
 import { Stage1View } from './Stage1View';
 import { Stage2View } from './Stage2View';
@@ -14,10 +14,11 @@ import { Stage7View } from './Stage7View';
 import { Stage8View } from './Stage8View';
 import { Stage9View } from './Stage9View';
 import { Stage11View } from './Stage11View';
+import { Stage12View } from './Stage12View';
 import { cn } from '../lib/utils';
 
 export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNavigateToChat, onNavigateToDocs }) => {
-  const [selectedStage, setSelectedStage] = useState('stage11');
+  const [selectedStage, setSelectedStage] = useState('stage12');
 
   if (!isOpen) return null;
 
@@ -32,6 +33,7 @@ export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNaviga
     { id: 'stage8', label: 'Prompt 8: AI Chat & RAG Experience', icon: Sparkles },
     { id: 'stage9', label: 'Prompt 9: Global & Semantic Search', icon: Sliders },
     { id: 'stage11', label: 'Prompt 11: Settings, Security & Billing', icon: ShieldCheck },
+    { id: 'stage12', label: 'Prompt 12: Edge Cases & Handoff', icon: AlertTriangle },
   ];
 
   return (
@@ -119,6 +121,9 @@ export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNaviga
           )}
           {selectedStage === 'stage11' && (
             <Stage11View theme={theme} onToggleTheme={onToggleTheme} />
+          )}
+          {selectedStage === 'stage12' && (
+            <Stage12View />
           )}
         </div>
       </div>

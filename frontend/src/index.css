@@ -148,3 +148,27 @@ html, body {
   border: 1px solid var(--ai-border);
   box-shadow: 0 0 20px -4px var(--ai-glow);
 }
+
+/* Skeleton shimmer sweep — left → right, 1.5s loop (see edgeCaseSpecs.skeletons) */
+@keyframes knowva-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.knowva-shimmer {
+  animation: knowva-shimmer 1.5s infinite;
+  will-change: transform;
+}
+
+/* Screen-reader-only utility for aria announcements */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
