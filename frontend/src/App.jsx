@@ -11,10 +11,13 @@ import {
 import { tokens } from './design-system/tokens';
 import { informationArchitecture } from './design-system/informationArchitecture';
 import { cn } from './lib/utils';
+import { ToastProvider } from './components/ui/Toast';
+import { Stage3View } from './components/Stage3View';
+import { Stage4View } from './components/Stage4View';
 
 export default function App() {
   const [theme, setTheme] = useState('dark');
-  const [currentStage, setCurrentStage] = useState('stage2'); // 'stage1' | 'stage2'
+  const [currentStage, setCurrentStage] = useState('stage4'); // 'stage1' | 'stage2' | 'stage3' | 'stage4'
   
   // Stage 1 State
   const [stage1Tab, setStage1Tab] = useState('colors');
@@ -64,7 +67,8 @@ export default function App() {
   const activeStep = currentFlow.steps[activeStepIndex] || currentFlow.steps[0];
 
   return (
-    <div className="min-h-screen bg-canvas text-primary transition-colors duration-200">
+    <ToastProvider>
+      <div className="min-h-screen bg-canvas text-primary transition-colors duration-200">
       {/* Global Top Application Header */}
       <header className="sticky top-0 z-40 border-b border-border-default bg-surface/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -76,7 +80,13 @@ export default function App() {
               <div className="flex items-center gap-2">
                 <span className="font-bold text-lg tracking-tight text-primary">Knowva</span>
                 <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                  {currentStage === 'stage1' ? 'Stage 1: Tokens' : 'Stage 2: IA & Flows'}
+                  {currentStage === 'stage1' 
+                    ? 'Stage 1: Tokens' 
+                    : currentStage === 'stage2' 
+                    ? 'Stage 2: IA & Flows' 
+                    : currentStage === 'stage3' 
+                    ? 'Stage 3: Component Library' 
+                    : 'Stage 4: App Shell & Global Nav'}
                 </span>
               </div>
               <p className="text-xs text-secondary hidden sm:block">Enterprise AI Knowledge Workspace</p>
@@ -85,11 +95,11 @@ export default function App() {
 
           <div className="flex items-center gap-3">
             {/* Stage Selector Pill */}
-            <div className="flex items-center p-1 rounded-lg bg-surface-hover border border-border-default">
+            <div className="flex items-center p-1 rounded-lg bg-surface-hover border border-border-default overflow-x-auto no-scrollbar max-w-full">
               <button
                 onClick={() => setCurrentStage('stage1')}
                 className={cn(
-                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150",
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 whitespace-nowrap",
                   currentStage === 'stage1'
                     ? "bg-brand-600 text-white shadow-xs"
                     : "text-secondary hover:text-primary"
@@ -100,13 +110,35 @@ export default function App() {
               <button
                 onClick={() => setCurrentStage('stage2')}
                 className={cn(
-                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 flex items-center gap-1.5",
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 whitespace-nowrap",
                   currentStage === 'stage2'
                     ? "bg-brand-600 text-white shadow-xs"
                     : "text-secondary hover:text-primary"
                 )}
               >
                 <span>Stage 2: IA & Flows</span>
+              </button>
+              <button
+                onClick={() => setCurrentStage('stage3')}
+                className={cn(
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 whitespace-nowrap",
+                  currentStage === 'stage3'
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-secondary hover:text-primary"
+                )}
+              >
+                <span>Stage 3: Components</span>
+              </button>
+              <button
+                onClick={() => setCurrentStage('stage4')}
+                className={cn(
+                  "px-3 py-1 rounded-md text-xs font-semibold transition-all duration-150 flex items-center gap-1.5 whitespace-nowrap",
+                  currentStage === 'stage4'
+                    ? "bg-brand-600 text-white shadow-xs"
+                    : "text-secondary hover:text-primary"
+                )}
+              >
+                <span>Stage 4: App Shell</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
               </button>
             </div>
@@ -133,53 +165,69 @@ export default function App() {
         </div>
 
         {/* Sub-navigation Tabs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto no-scrollbar border-t border-border-subtle">
-          {currentStage === 'stage1' ? (
-            stage1Tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = stage1Tab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setStage1Tab(tab.id)}
-                  className={cn(
-                    "flex items-center gap-2 py-3 px-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-colors duration-150",
-                    isActive
-                      ? "border-brand-500 text-brand-400"
-                      : "border-transparent text-secondary hover:text-primary hover:border-border-default"
-                  )}
-                >
-                  <Icon className={cn("w-4 h-4", isActive ? "text-brand-500" : "text-secondary")} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })
-          ) : (
-            stage2Tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = stage2Tab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setStage2Tab(tab.id)}
-                  className={cn(
-                    "flex items-center gap-2 py-3 px-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-colors duration-150",
-                    isActive
-                      ? "border-brand-500 text-brand-400"
-                      : "border-transparent text-secondary hover:text-primary hover:border-border-default"
-                  )}
-                >
-                  <Icon className={cn("w-4 h-4", isActive ? "text-brand-500" : "text-secondary")} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })
-          )}
-        </div>
+        {currentStage !== 'stage3' && currentStage !== 'stage4' && (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex overflow-x-auto no-scrollbar border-t border-border-subtle">
+            {currentStage === 'stage1' ? (
+              stage1Tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = stage1Tab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setStage1Tab(tab.id)}
+                    className={cn(
+                      "flex items-center gap-2 py-3 px-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-colors duration-150",
+                      isActive
+                        ? "border-brand-500 text-brand-400"
+                        : "border-transparent text-secondary hover:text-primary hover:border-border-default"
+                    )}
+                  >
+                    <Icon className={cn("w-4 h-4", isActive ? "text-brand-500" : "text-secondary")} />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })
+            ) : (
+              stage2Tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = stage2Tab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setStage2Tab(tab.id)}
+                    className={cn(
+                      "flex items-center gap-2 py-3 px-4 text-xs sm:text-sm font-medium border-b-2 whitespace-nowrap transition-colors duration-150",
+                      isActive
+                        ? "border-brand-500 text-brand-400"
+                        : "border-transparent text-secondary hover:text-primary hover:border-border-default"
+                    )}
+                  >
+                    <Icon className={cn("w-4 h-4", isActive ? "text-brand-500" : "text-secondary")} />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        )}
       </header>
 
       {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* ========================================================================= */}
+        {/* STAGE 4 VIEWS (APP SHELL & GLOBAL NAVIGATION)                              */}
+        {/* ========================================================================= */}
+        {currentStage === 'stage4' && (
+          <Stage4View theme={theme} onToggleTheme={() => setTheme(theme === 'dark' ? 'light' : 'dark')} />
+        )}
+
+        {/* ========================================================================= */}
+        {/* STAGE 3 VIEWS (CORE REUSABLE COMPONENT LIBRARY)                            */}
+        {/* ========================================================================= */}
+        {currentStage === 'stage3' && (
+          <Stage3View />
+        )}
 
         {/* ========================================================================= */}
         {/* STAGE 2 VIEWS (INFORMATION ARCHITECTURE & FLOWS)                           */}
@@ -1008,5 +1056,6 @@ export default function App() {
 
       </main>
     </div>
+    </ToastProvider>
   );
 }
