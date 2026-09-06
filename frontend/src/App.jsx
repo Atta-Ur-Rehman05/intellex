@@ -20,6 +20,7 @@ import { RegisterForm } from './components/auth/RegisterForm';
 import { VerifyEmailScreen } from './components/auth/VerifyEmailScreen';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import { DevSpecsDrawer } from './components/DevSpecsDrawer';
+import { WorkspaceSettingsPage } from './components/team/WorkspaceSettingsPage';
 import { Button } from './components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './components/ui/Card';
 import { Badge } from './components/ui/Badge';
@@ -116,21 +117,9 @@ export default function App() {
               />
             )}
 
-            {/* Workspace Settings */}
+            {/* Workspace Settings (Stage 10) */}
             {appRoute === 'settings' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div>
-                  <h1 className="text-2xl font-bold tracking-tight text-primary">Workspace & Security Settings</h1>
-                  <p className="text-xs text-secondary mt-1">
-                    Multi-tenant encryption, API keys, compliance audit logs, and SSO configuration.
-                  </p>
-                </div>
-                <Card>
-                  <CardContent className="p-6 text-xs text-secondary">
-                    Team member roles, permission scopes, and audit logs will be expanded in Prompts 10–12.
-                  </CardContent>
-                </Card>
-              </div>
+              <WorkspaceSettingsPage />
             )}
           </AppShell>
         ) : (
