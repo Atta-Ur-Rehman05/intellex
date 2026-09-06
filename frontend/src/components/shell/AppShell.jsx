@@ -56,6 +56,7 @@ export const AppShell = ({
     search: 'Semantic Search',
     activity: 'Activity Feed',
     settings: 'Workspace Settings',
+    'account-settings': 'Account Settings',
   };
 
   const breadcrumbItems = [

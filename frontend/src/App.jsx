@@ -21,6 +21,7 @@ import { VerifyEmailScreen } from './components/auth/VerifyEmailScreen';
 import { ForgotPasswordForm } from './components/auth/ForgotPasswordForm';
 import { DevSpecsDrawer } from './components/DevSpecsDrawer';
 import { WorkspaceSettingsPage } from './components/team/WorkspaceSettingsPage';
+import { AccountSettingsPage } from './components/settings/AccountSettingsPage';
 import { Button } from './components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './components/ui/Card';
 import { Badge } from './components/ui/Badge';
@@ -120,6 +121,11 @@ export default function App() {
             {/* Workspace Settings (Stage 10) */}
             {appRoute === 'settings' && (
               <WorkspaceSettingsPage />
+            )}
+
+            {/* Account Settings, Security, Billing & API Keys (Stage 11) */}
+            {appRoute === 'account-settings' && (
+              <AccountSettingsPage theme={theme} onThemeChange={toggleTheme} />
             )}
           </AppShell>
         ) : (

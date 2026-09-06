@@ -2,7 +2,7 @@ import React from 'react';
 import { 
   LayoutDashboard, FileText, Sparkles, Search, 
   Activity, Settings, Users, HardDrive, ChevronLeft, 
-  ChevronRight, UserPlus, HelpCircle, PanelLeftClose, PanelLeftOpen
+  ChevronRight, UserPlus, HelpCircle, PanelLeftClose, PanelLeftOpen, User
 } from 'lucide-react';
 import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 import { FolderTree } from './FolderTree';
@@ -18,6 +18,7 @@ export const primaryNavItems = [
   { id: 'search', label: 'Semantic Search', icon: Search, path: '/search', shortcut: '⌘K' },
   { id: 'activity', label: 'Activity Feed', icon: Activity, path: '/activity' },
   { id: 'settings', label: 'Workspace Settings', icon: Settings, path: '/settings' },
+  { id: 'account-settings', label: 'Account Settings', icon: User, path: '/account-settings' },
 ];
 
 /**
