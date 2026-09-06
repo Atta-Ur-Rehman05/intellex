@@ -15,6 +15,7 @@ export const MarketingLayout = ({
   activeNav = 'landing',
   onNavigate,
   onOpenAuth,
+  onLaunchApp,
   theme = 'dark',
   onToggleTheme,
   className
@@ -92,16 +93,29 @@ export const MarketingLayout = ({
               Sign In
             </Button>
 
-            {/* Primary Get Started CTA */}
-            <Button
-              variant="ai"
-              size="sm"
-              onClick={() => onOpenAuth?.('register')}
-              rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
-              className="text-xs shadow-md shadow-brand-500/20"
-            >
-              Start Free Trial
-            </Button>
+            {/* Launch App or Get Started */}
+            {onLaunchApp ? (
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={onLaunchApp}
+                leftIcon={<Sparkles className="w-3.5 h-3.5 text-white" />}
+                rightIcon={<ArrowRight className="w-3.5 h-3.5 text-white" />}
+                className="text-xs font-semibold bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-xs"
+              >
+                Launch Workspace
+              </Button>
+            ) : (
+              <Button
+                variant="ai"
+                size="sm"
+                onClick={() => onOpenAuth?.('register')}
+                rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                className="text-xs font-semibold"
+              >
+                Get Started
+              </Button>
+            )}
           </div>
         </div>
       </header>

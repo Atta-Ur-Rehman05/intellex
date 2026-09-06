@@ -19,6 +19,7 @@ export const AppShell = ({
   activeDocumentTitle = 'Architecture_2026.pdf',
   theme = 'dark',
   onToggleTheme,
+  onSignOut,
   className
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -148,6 +149,7 @@ export const AppShell = ({
           onToggleMobileDrawer={() => setIsMobileDrawerOpen(true)}
           theme={theme}
           onToggleTheme={onToggleTheme}
+          onSignOut={onSignOut}
         />
 
         {/* Viewport Content Area */}
