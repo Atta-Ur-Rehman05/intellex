@@ -10,10 +10,12 @@ import { Stage3View } from './Stage3View';
 import { Stage4View } from './Stage4View';
 import { Stage5View } from './Stage5View';
 import { Stage6View } from './Stage6View';
+import { Stage7View } from './Stage7View';
+import { Folder } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNavigateToChat, onNavigateToDocs }) => {
-  const [selectedStage, setSelectedStage] = useState('stage6');
+  const [selectedStage, setSelectedStage] = useState('stage7');
 
   if (!isOpen) return null;
 
@@ -24,6 +26,7 @@ export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNaviga
     { id: 'stage4', label: 'Prompt 4: App Shell & Global Nav', icon: Layout },
     { id: 'stage5', label: 'Prompt 5: Marketing & Auth Suite', icon: Globe },
     { id: 'stage6', label: 'Prompt 6: Main Dashboard & Analytics', icon: LayoutDashboard },
+    { id: 'stage7', label: 'Prompt 7: Document Explorer & Upload', icon: Folder },
   ];
 
   return (
@@ -96,6 +99,9 @@ export const DevSpecsDrawer = ({ isOpen, onClose, theme, onToggleTheme, onNaviga
               onNavigateToChat={onNavigateToChat}
               onNavigateToDocs={onNavigateToDocs}
             />
+          )}
+          {selectedStage === 'stage7' && (
+            <Stage7View onNavigateToChat={onNavigateToChat} />
           )}
         </div>
       </div>

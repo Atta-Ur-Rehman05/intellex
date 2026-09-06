@@ -7,6 +7,7 @@ import {
 import { ToastProvider, useToast } from './components/ui/Toast';
 import { AppShell } from './components/shell/AppShell';
 import { DashboardPage } from './components/dashboard/DashboardPage';
+import { DocumentExplorerPage } from './components/documents/DocumentExplorerPage';
 import { MarketingLayout } from './components/marketing/MarketingLayout';
 import { LandingPage } from './components/marketing/LandingPage';
 import { PricingPage } from './components/marketing/PricingPage';
@@ -80,31 +81,13 @@ export default function App() {
               />
             )}
 
-            {/* Document Explorer (Roadmap: Prompt 7 Preview) */}
+            {/* Document Explorer & Upload Engine (Prompt 7) */}
             {appRoute === 'docs' && (
-              <div className="space-y-6 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-primary">Document Explorer & Vector Ingestion</h1>
-                    <p className="text-xs text-secondary mt-1">
-                      Folder navigation, multi-file drag-and-drop wizard, AST chunk viewer, and custom tags.
-                    </p>
-                  </div>
-                  <Badge variant="brand" dot>Prompt 7 (Next Stage)</Badge>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm">Quick Vector Inspection</CardTitle>
-                      <CardDescription className="text-xs">1,428 documents currently vectorized</CardDescription>
-                    </CardHeader>
-                    <CardContent className="text-xs text-secondary">
-                      Full folder hierarchy and multi-source connectors (Google Drive, Notion, S3) will be built in Stage 7.
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
+              <DocumentExplorerPage
+                onNavigateToChat={(doc) => {
+                  setAppRoute('chat');
+                }}
+              />
             )}
 
             {/* AI Chat & RAG Experience (Roadmap: Prompt 8 Preview) */}
