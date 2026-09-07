@@ -117,14 +117,14 @@ export const PasswordInput = forwardRef(({
 PasswordInput.displayName = 'PasswordInput';
 
 /**
- * Search Input with Clear Button and Keyboard Shortcut Badge
+ * Search Input with Clear Button (optional keyboard shortcut badge)
  */
 export const SearchInput = forwardRef(({
   value,
   onChange,
   onClear,
-  placeholder = "Search documents, chats, or commands...",
-  shortcutKey = "⌘K",
+  placeholder = "Search...",
+  shortcutKey = null,
   className,
   ...props
 }, ref) => {

@@ -1,4 +1,4 @@
-import { X, Sparkles } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 /**
@@ -60,49 +60,6 @@ export const Badge = ({
       )}
       {icon && <span className="shrink-0">{icon}</span>}
       <span>{children}</span>
-    </span>
-  );
-};
-
-/**
- * Tag Component with Removable Action (X)
- */
-export const Tag = ({
-  children,
-  onRemove,
-  icon,
-  count,
-  className,
-  ...props
-}) => {
-  return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-surface text-primary border border-border-default hover:border-border-strong transition-all shadow-2xs group",
-        className
-      )}
-      {...props}
-    >
-      {icon && <span className="text-secondary group-hover:text-primary transition-colors">{icon}</span>}
-      <span>{children}</span>
-      {count !== undefined && (
-        <span className="text-[10px] px-1 py-0.2 rounded bg-surface-hover text-muted font-mono">
-          {count}
-        </span>
-      )}
-      {onRemove && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onRemove();
-          }}
-          className="ml-0.5 p-0.5 rounded-full text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors cursor-pointer"
-          aria-label="Remove tag"
-        >
-          <X className="w-3 h-3" />
-        </button>
-      )}
     </span>
   );
 };

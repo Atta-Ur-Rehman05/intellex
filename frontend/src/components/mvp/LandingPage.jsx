@@ -148,8 +148,8 @@ export const LandingPage = () => {
           <span>© 2026 Knowva — Your AI Knowledge Workspace</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="hover:text-primary cursor-pointer transition-colors">Privacy Policy</span>
-          <span className="hover:text-primary cursor-pointer transition-colors">Terms of Service</span>
+          <span>Privacy Policy</span>
+          <span>Terms of Service</span>
         </div>
       </footer>
     </div>

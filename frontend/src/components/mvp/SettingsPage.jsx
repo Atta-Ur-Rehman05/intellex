@@ -5,6 +5,7 @@ import { Button } from '../ui/Button.jsx';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/Card.jsx';
 import { Input } from '../ui/Input.jsx';
 import { Avatar } from '../ui/Avatar.jsx';
+import { useToast } from '../ui/Toast.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
 import { cn } from '../../lib/utils.js';
@@ -16,17 +17,28 @@ const themeOptions = [
 ];
 
 export const SettingsPage = () => {
-  const { user, logout } = useAuth();
+  const { user, updateProfile, logout } = useAuth();
   const { mode, setMode } = useTheme();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [name, setName] = useState(user?.name || '');
+  const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const handleSaveProfile = () => {
-    // MVP: PATCH /auth/me is optional; persist locally for now
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  const handleSaveProfile = async () => {
+    if (!name.trim()) return;
+    setIsSaving(true);
+    try {
+      await updateProfile(name.trim());
+      setSaved(true);
+      toast({ title: 'Profile updated', description: 'Your name has been saved.', type: 'success' });
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      toast({ title: 'Could not save profile', description: err.message || 'Please try again.', type: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleLogout = () => {
@@ -74,7 +86,8 @@ export const SettingsPage = () => {
                 <Button
                   size="sm"
                   onClick={handleSaveProfile}
-                  disabled={!name.trim() || name === user?.name}
+                  disabled={!name.trim() || name === user?.name || isSaving}
+                  isLoading={isSaving}
                   leftIcon={saved ? <Check className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />}
                 >
                   {saved ? 'Saved' : 'Save Changes'}

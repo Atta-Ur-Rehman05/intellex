@@ -85,10 +85,10 @@ export const ErrorScreen = ({
   const is503 = code === 503;
 
   const defaults = {
-    403: "You don't have permission to view this workspace. Your role may have changed, or the resource belongs to another tenant.",
-    404: "The document or route you're looking for was moved, renamed, or deleted by another member.",
+    403: "You don't have permission to view this page. If you believe this is a mistake, contact the account owner.",
+    404: "The document or page you're looking for was moved, renamed, or deleted.",
     500: "An internal error occurred on our side. Your data is safe — the incident has been logged and our team is on it.",
-    503: "We're upgrading vector index shards to improve retrieval latency. Expected back online by 02:00 UTC.",
+    503: "We're performing scheduled maintenance to improve performance. We'll be back shortly.",
   };
 
   return (
@@ -143,7 +143,7 @@ export const ErrorScreen = ({
           </Button>
         ) : (
           <Button variant="ghost" onClick={onSecondaryAction} leftIcon={<ExternalLink className="w-4 h-4" />}>
-            {code === 404 ? "Search Knowledge Base" : code === 403 ? "Contact Workspace Owner" : "View Status Page"}
+            {code === 404 ? "Back to Documents" : code === 403 ? "Contact Support" : "View Status Page"}
           </Button>
         )}
       </div>

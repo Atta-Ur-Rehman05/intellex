@@ -1,13 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from './Button';
 import { cn } from '../../lib/utils';
 
+const FOCUSABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 /**
  * Modal Component - Knowva Design System
- * 
- * Includes backdrop blur, ESC key dismiss, body scroll lock, and accessible ARIA roles.
+ *
+ * Includes backdrop blur, ESC key dismiss, body scroll lock, focus trap,
+ * focus restore, and accessible ARIA roles.
  */
 export const Modal = ({
   isOpen,
@@ -19,21 +22,55 @@ export const Modal = ({
   showCloseButton = true,
   className
 }) => {
+  const dialogRef = useRef(null);
+  const lastFocusedRef = useRef(null);
+
   useEffect(() => {
+    if (!isOpen) return;
+
+    // Remember the trigger to restore focus on close
+    lastFocusedRef.current = document.activeElement;
+
+    const dialog = dialogRef.current;
+
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
         onClose?.();
+        return;
+      }
+      // Focus trap: cycle Tab within the dialog
+      if (e.key === 'Tab' && dialog) {
+        const focusables = Array.from(dialog.querySelectorAll(FOCUSABLE))
+          .filter((el) => el.offsetParent !== null);
+        if (focusables.length === 0) return;
+
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+
+        if (e.shiftKey) {
+          if (active === first || !dialog.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else if (active === last || !dialog.contains(active)) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
 
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Move focus into the dialog on open
+    const initialFocus = dialog?.querySelector(FOCUSABLE);
+    (initialFocus || dialog)?.focus?.();
 
     return () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
+      lastFocusedRef.current?.focus?.();
     };
   }, [isOpen, onClose]);
 
@@ -63,9 +100,11 @@ export const Modal = ({
       />
 
       {/* Modal Dialog Body */}
-      <div 
+      <div
+        ref={dialogRef}
+        tabIndex={-1}
         className={cn(
-          "relative w-full bg-surface border border-border-default rounded-2xl shadow-2xl z-10 overflow-hidden transform transition-all duration-200 animate-in fade-in zoom-in-95",
+          "relative w-full bg-surface border border-border-default rounded-2xl shadow-2xl z-10 overflow-hidden transform transition-all duration-200 animate-in fade-in zoom-in-95 outline-none",
           sizes[size] || sizes.md,
           className
         )}

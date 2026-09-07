@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Sparkles, Plus, Menu, Trash2, FileText, ExternalLink,
-  Copy, Check, ArrowUp, Loader2, MessageSquare, AlertCircle
+  Copy, Check, ArrowUp, Loader2, MessageSquare, AlertCircle, RotateCcw
 } from 'lucide-react';
 import { Button } from '../ui/Button.jsx';
 import { Modal, ConfirmDialog } from '../ui/Modal.jsx';
@@ -121,6 +121,7 @@ export const ChatPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [deleteConv, setDeleteConv] = useState(null);
   const [activeSource, setActiveSource] = useState(null);
+  const [lastFailed, setLastFailed] = useState(null);
 
   const endRef = useRef(null);
   const textareaRef = useRef(null);
@@ -167,10 +168,14 @@ export const ChatPage = () => {
     }
   }, [input]);
 
-  /* Create conversation on first message */
+  /* Create conversation on first message — passes doc scope so the
+     backend can restrict retrieval to the selected documents */
   const ensureConversation = async () => {
     if (conversationId) return activeConv;
-    const conv = await chatApi.createConversation(docContext ? `About ${docContext.name}` : 'New Chat');
+    const conv = await chatApi.createConversation(
+      docContext ? `About ${docContext.name}` : 'New Chat',
+      docContext ? [docContext.id] : []
+    );
     setConversations((prev) => [conv, ...prev]);
     navigate(`/app/chat/${conv.id}`, { replace: true });
     setActiveConv(conv);
@@ -207,12 +212,27 @@ export const ChatPage = () => {
       const fresh = await chatApi.getConversation(conv.id);
       setActiveConv(fresh);
       loadConversations(); // refresh titles/order
+      setLastFailed(null);
     } catch (err) {
-      setError(err.message || 'The AI could not answer right now. Please try again.');
-      // Keep user message visible; remove nothing.
+      const message = err.message || 'The AI could not answer right now. Please try again.';
+      setError(message);
+      setLastFailed(text);
+      // Remove the optimistic message so the thread stays honest
+      setActiveConv((prev) => ({
+        ...prev,
+        messages: (prev?.messages || []).filter((m) => m.id !== tempId),
+      }));
     } finally {
       setIsSending(false);
     }
+  };
+
+  /* Retry a failed send with the same text */
+  const handleRetrySend = () => {
+    setError('');
+    setInput(lastFailed || '');
+    setLastFailed(null);
+    textareaRef.current?.focus();
   };
 
   const handleNewChat = () => {
@@ -224,10 +244,15 @@ export const ChatPage = () => {
 
   const handleDeleteConv = async () => {
     try {
-      // MVP mock has no DELETE endpoint defined; remove locally
+      await chatApi.removeConversation(deleteConv);
       setConversations((prev) => prev.filter((c) => c.id !== deleteConv));
-      if (conversationId === deleteConv) navigate('/app/chat', { replace: true });
+      if (conversationId === deleteConv) {
+        setActiveConv(null);
+        navigate('/app/chat', { replace: true });
+      }
       toast({ title: 'Conversation deleted', type: 'success' });
+    } catch (err) {
+      toast({ title: 'Delete failed', description: err.message, type: 'error' });
     } finally {
       setDeleteConv(null);
     }
@@ -310,7 +335,7 @@ export const ChatPage = () => {
                     type="button"
                     onClick={() => setDeleteConv(c)}
                     aria-label={`Delete conversation "${c.title}"`}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-muted hover:text-red-500 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all cursor-pointer"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center justify-center w-11 h-11 rounded-lg text-muted hover:text-red-500 hover:bg-red-500/10 opacity-60 md:opacity-0 md:group-hover:opacity-100 transition-all cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -434,16 +459,28 @@ export const ChatPage = () => {
               </>
             )}
 
-            {/* Error */}
+            {/* Error + retry */}
             {error && (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-2 text-xs text-red-500 max-w-md mx-auto" role="alert">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <div className="flex-1">
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex flex-col sm:flex-row sm:items-start gap-2 text-xs text-red-500 max-w-md mx-auto" role="alert">
+                <div className="flex items-start gap-2 flex-1">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>{error}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {lastFailed && (
+                    <button
+                      type="button"
+                      onClick={handleRetrySend}
+                      className="flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/15 border border-red-500/30 hover:bg-red-500/25 font-semibold transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Retry
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={() => setError('')}
-                    className="ml-2 underline underline-offset-2 hover:no-underline cursor-pointer"
+                    onClick={() => { setError(''); setLastFailed(null); }}
+                    className="underline underline-offset-2 hover:no-underline cursor-pointer"
                   >
                     Dismiss
                   </button>

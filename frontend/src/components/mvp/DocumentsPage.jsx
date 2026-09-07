@@ -15,7 +15,7 @@ import { DocumentStatusBadge, DocumentTypeIcon, formatDate, formatBytes } from '
 import { cn } from '../../lib/utils.js';
 
 /* ============ Upload Modal ============ */
-const UploadModal = ({ isOpen, onClose, onUploaded }) => {
+const UploadModal = ({ isOpen, onClose, onUploaded, onOpenDocument }) => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [phase, setPhase] = useState('idle'); // idle | uploading | processing | done | error
@@ -49,20 +49,25 @@ const UploadModal = ({ isOpen, onClose, onUploaded }) => {
     setPhase('uploading');
     setProgress(0);
 
-    // Simulated XHR-ish progress while the mock/backend processes
-    const timer = setInterval(() => {
-      setProgress((p) => (p < 90 ? p + Math.random() * 18 : p));
-    }, 250);
-
     try {
-      await documentsApi.upload(file);
-      clearInterval(timer);
+      // Progress comes from the request itself (XHR upload events in real mode,
+      // simulated byte progress in mock mode — same UI path either way).
+      const doc = await documentsApi.upload(file, (pct) => setProgress(pct));
       setProgress(100);
       setPhase('processing');
       toast({
         title: 'Upload complete',
         description: `"${file.name}" is being processed. It will be ready shortly.`,
         type: 'success',
+        action: doc?.id ? (
+          <button
+            type="button"
+            onClick={() => onOpenDocument?.(doc.id)}
+            className="text-[11px] font-semibold text-brand-400 hover:text-brand-300 underline underline-offset-2 cursor-pointer"
+          >
+            View document →
+          </button>
+        ) : undefined,
       });
       onUploaded?.();
       // Show processing state briefly, then close
@@ -72,7 +77,6 @@ const UploadModal = ({ isOpen, onClose, onUploaded }) => {
         reset();
       }, 1600);
     } catch (err) {
-      clearInterval(timer);
       setPhase('error');
       setErrorMsg(err.message || 'Upload failed. Please try again.');
     }
@@ -226,7 +230,7 @@ const RowMenu = ({ doc, onRename, onDelete, onAskAi }) => {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Actions for ${doc.name}`}
-        className="p-1.5 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer"
+        className="flex items-center justify-center w-11 h-11 -m-2 rounded-lg text-muted hover:text-primary hover:bg-surface-hover transition-colors cursor-pointer"
       >
         <MoreVertical className="w-4 h-4" />
       </button>
@@ -458,6 +462,7 @@ export const DocumentsPage = () => {
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onUploaded={load}
+        onOpenDocument={(docId) => navigate(`/app/documents/${docId}`)}
       />
 
       {/* Rename modal */}

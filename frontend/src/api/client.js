@@ -19,7 +19,7 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
 const TOKEN_KEY = 'knowva_access_token';
 
 export const tokenStore = {
@@ -32,8 +32,13 @@ export const tokenStore = {
  * Low-level request helper. Swap `mockRequest` for the real fetch adapter
  * below once the FastAPI backend is live.
  */
+/** Broadcast so AuthContext can log out and redirect on mid-session 401s. */
+const broadcastSessionExpired = () => {
+  try { window.dispatchEvent(new CustomEvent('knowva:session-expired')); } catch { /* SSR/tests */ }
+};
+
 export async function request(path, { method = 'GET', body, headers = {}, isForm = false } = {}) {
-  if (!import.meta.env.VITE_API_BASE_URL) {
+  if (!import.meta.env?.VITE_API_BASE_URL) {
     const { mockRequest } = await import('./mockApi.js');
     return mockRequest(path, { method, body });
   }
@@ -56,6 +61,7 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
 
   if (res.status === 401) {
     tokenStore.clear();
+    broadcastSessionExpired();
     throw new ApiError('Your session has expired. Please sign in again.', 401);
   }
 
@@ -74,6 +80,49 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
 
   if (res.status === 204) return null;
   return res.json();
+}
+
+/**
+ * XHR-based request used when real upload progress is needed (fetch cannot
+ * report upload progress). Mirrors the same error contract as `request`.
+ */
+export function requestWithProgress(path, { method = 'POST', body, onUploadProgress } = {}) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open(method, `${BASE_URL}${path}`);
+
+    const token = tokenStore.get();
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable && onUploadProgress) {
+        onUploadProgress(Math.round((e.loaded / e.total) * 100));
+      }
+    };
+
+    xhr.onload = () => {
+      let data = null;
+      try { data = JSON.parse(xhr.responseText); } catch { /* non-JSON body */ }
+
+      if (xhr.status === 401) {
+        tokenStore.clear();
+        broadcastSessionExpired();
+        reject(new ApiError('Your session has expired. Please sign in again.', 401));
+        return;
+      }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.status === 204 ? null : data);
+      } else {
+        const message = data
+          ? (typeof data.detail === 'string' ? data.detail : Object.values(data).flat?.()[0]?.msg || data.message)
+          : `Request failed (${xhr.status})`;
+        reject(new ApiError(message || `Request failed (${xhr.status})`, xhr.status, data));
+      }
+    };
+
+    xhr.onerror = () => reject(new ApiError('Network error — please check your connection and try again.', 0));
+    xhr.send(body);
+  });
 }
 
 export const apiClient = {

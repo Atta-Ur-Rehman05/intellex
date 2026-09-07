@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ToastProvider } from './components/ui/Toast.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import { ThemeProvider } from './context/ThemeContext.jsx';
@@ -41,23 +41,29 @@ const RedirectIfAuth = ({ children }) => {
 };
 
 /* ---------- 404 ---------- */
-const NotFoundPage = () => (
-  <div className="min-h-screen bg-canvas">
+const NotFoundPage = () => {
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen bg-canvas">
+      <ErrorScreen
+        code={404}
+        onPrimaryAction={() => navigate('/')}
+        onSecondaryAction={() => navigate('/app/dashboard')}
+      />
+    </div>
+  );
+};
+
+const NotFoundInline = () => {
+  const navigate = useNavigate();
+  return (
     <ErrorScreen
       code={404}
-      onPrimaryAction={() => window.location.href = '/'}
-      onSecondaryAction={() => window.location.href = '/app/dashboard'}
+      onPrimaryAction={() => navigate('/app/dashboard')}
+      onSecondaryAction={() => navigate('/')}
     />
-  </div>
-);
-
-const NotFoundInline = () => (
-  <ErrorScreen
-    code={404}
-    onPrimaryAction={() => window.location.href = '/app/dashboard'}
-    onSecondaryAction={() => window.location.href = '/'}
-  />
-);
+  );
+};
 
 export default function App() {
   return (

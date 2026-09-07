@@ -1,12 +1,10 @@
-import { Crown, Shield } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Tooltip } from './Tooltip';
 
 /**
  * Avatar Component - Knowva Design System
- * 
+ *
  * Presence: 'online' | 'busy' | 'offline' | 'ai'
- * Roles: 'owner' | 'admin' | 'member'
  * Sizes: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
  */
 export const Avatar = ({
@@ -14,7 +12,6 @@ export const Avatar = ({
   name = "User",
   size = 'md',
   presence,
-  role,
   className
 }) => {
   const getInitials = (n) => {
@@ -49,11 +46,6 @@ export const Avatar = ({
     ai: "bg-gradient-to-tr from-brand-500 to-purple-500 animate-pulse",
   };
 
-  const roleBadges = {
-    owner: <Crown className="w-2.5 h-2.5 text-amber-400" />,
-    admin: <Shield className="w-2.5 h-2.5 text-brand-400" />,
-  };
-
   return (
     <div className={cn("relative inline-block shrink-0 select-none", className)}>
       <div
@@ -80,13 +72,6 @@ export const Avatar = ({
           )}
         />
       )}
-
-      {/* Role Badge Indicator */}
-      {role && roleBadges[role] && (
-        <span className="absolute -top-1 -right-1 p-0.5 rounded-full bg-surface border border-border-default shadow-xs flex items-center justify-center">
-          {roleBadges[role]}
-        </span>
-      )}
     </div>
   );
 };
@@ -107,14 +92,13 @@ export const AvatarGroup = ({
   return (
     <div className={cn("flex items-center -space-x-2.5 overflow-hidden p-0.5", className)}>
       {visibleUsers.map((user, idx) => (
-        <Tooltip key={user.id || idx} content={`${user.name} (${user.role || 'Member'})`}>
+        <Tooltip key={user.id || idx} content={user.name}>
           <div className="hover:z-20 hover:scale-105 transition-transform duration-150">
             <Avatar
               src={user.src}
               name={user.name}
               size={size}
               presence={user.presence}
-              role={user.role}
               className="ring-2 ring-canvas"
             />
           </div>

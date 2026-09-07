@@ -20,6 +20,7 @@ let conversations = [
   {
     id: 'conv-1',
     title: 'What is machine learning?',
+    document_ids: [],
     created_at: '2026-09-05T15:00:00Z',
     updated_at: '2026-09-05T15:04:00Z',
     messages: [
@@ -46,9 +47,8 @@ const genAnswer = (question) =>
   `Key points include the definitions, methodologies, and practical examples referenced across the indexed chunks.\n\n` +
   `Ask a follow-up question if you'd like me to go deeper on any specific section.`;
 
-const genSources = () =>
-  documents
-    .filter((d) => d.status === 'ready')
+const genSources = (pool) =>
+  pool
     .slice(0, 2)
     .map((d, i) => ({
       id: i + 1,
@@ -87,6 +87,13 @@ export async function mockRequest(path, { method = 'GET', body } = {}) {
   }
 
   if (m(/^GET \/auth\/me$/)) {
+    return withDelay({ id: users[0].id, name: users[0].name, email: users[0].email, created_at: users[0].created_at });
+  }
+
+  if (m(/^PATCH \/auth\/me$/)) {
+    const { name } = body || {};
+    if (!name?.trim()) return err('Name cannot be empty.', 422);
+    users[0].name = name.trim();
     return withDelay({ id: users[0].id, name: users[0].name, email: users[0].email, created_at: users[0].created_at });
   }
 
@@ -158,7 +165,15 @@ export async function mockRequest(path, { method = 'GET', body } = {}) {
   }
 
   if (m(/^POST \/conversations$/)) {
-    const conv = { id: id(), title: body?.title || 'New Chat', created_at: now(), updated_at: now(), messages: [] };
+    // Contract: document_ids optionally scopes retrieval to specific documents
+    const conv = {
+      id: id(),
+      title: body?.title || 'New Chat',
+      document_ids: Array.isArray(body?.document_ids) ? body.document_ids : [],
+      created_at: now(),
+      updated_at: now(),
+      messages: [],
+    };
     conversations.unshift(conv);
     return withDelay(conv, 250);
   }
@@ -169,6 +184,13 @@ export async function mockRequest(path, { method = 'GET', body } = {}) {
     return withDelay(conv);
   }
 
+  if ((match = m(/^DELETE \/conversations\/([^/]+)$/))) {
+    const exists = conversations.some((c) => c.id === match[1]);
+    if (!exists) return err('Conversation not found.', 404);
+    conversations = conversations.filter((c) => c.id !== match[1]);
+    return withDelay(null, 200);
+  }
+
   if ((match = m(/^POST \/conversations\/([^/]+)\/messages$/))) {
     const conv = conversations.find((c) => c.id === match[1]);
     if (!conv) return err('Conversation not found.', 404);
@@ -177,16 +199,23 @@ export async function mockRequest(path, { method = 'GET', body } = {}) {
 
     const userMsg = { id: id(), role: 'user', content, created_at: now() };
     conv.messages.push(userMsg);
-    if (conv.title === 'New Chat') {
+    if (conv.title === 'New Chat' || conv.title.startsWith('About ')) {
       conv.title = content.length > 42 ? `${content.slice(0, 42)}…` : content;
     }
 
-    const noReadyDocs = documents.filter((d) => d.status === 'ready').length === 0;
-    const assistantMsg = noReadyDocs
+    // Retrieval scope: conversation-scoped docs if set, otherwise all ready docs
+    const scopeIds = conv.document_ids || [];
+    const pool = documents.filter(
+      (d) => d.status === 'ready' && (scopeIds.length === 0 || scopeIds.includes(d.id))
+    );
+
+    const assistantMsg = pool.length === 0
       ? {
           id: id(),
           role: 'assistant',
-          content: "You don't have any processed documents yet. Upload a PDF or TXT file on the Documents page, wait for it to finish processing, and then ask me anything about it.",
+          content: scopeIds.length > 0
+            ? "This document isn't ready yet — it may still be processing or failed. Open the Documents page, check its status, and try again once it shows Ready."
+            : "You don't have any processed documents yet. Upload a PDF or TXT file on the Documents page, wait for it to finish processing, and then ask me anything about it.",
           sources: [],
           created_at: now(),
         }
@@ -194,7 +223,7 @@ export async function mockRequest(path, { method = 'GET', body } = {}) {
           id: id(),
           role: 'assistant',
           content: genAnswer(content),
-          sources: genSources(),
+          sources: genSources(pool),
           created_at: now(),
         };
 

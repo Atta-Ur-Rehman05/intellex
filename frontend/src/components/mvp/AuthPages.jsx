@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, AlertCircle, ArrowLeft, Lock, Sparkles, ShieldCheck, Sun, Moon } from 'lucide-react';
+import { Mail, AlertCircle, ArrowLeft, Lock, Sparkles, ShieldCheck, Sun, Moon, Clock } from 'lucide-react';
 import { Input, PasswordInput } from '../ui/Input.jsx';
 import { Button } from '../ui/Button.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useTheme } from '../../context/ThemeContext.jsx';
+
+/**
+ * Session-expiry notice shown when redirected to login after a mid-session 401.
+ */
+const SessionExpiredNotice = () => (
+  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400" role="status">
+    <Clock className="w-4 h-4 shrink-0 mt-0.5" />
+    <span>Your session has expired. Please sign in again to continue.</span>
+  </div>
+);
 
 /**
  * Shared minimal auth shell (preserves AuthLayout's premium visual identity)
@@ -74,7 +84,7 @@ const ThemeToggleButton = () => {
  * Login Page — MVP email/password against POST /auth/login
  */
 export const LoginPage = () => {
-  const { login } = useAuth();
+  const { login, sessionExpired } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from || '/app/dashboard';
@@ -113,6 +123,7 @@ export const LoginPage = () => {
   return (
     <AuthShell title="Sign In" subtitle="Welcome back — sign in to your Knowva workspace.">
       <div className="space-y-5">
+        {sessionExpired && !error && <SessionExpiredNotice />}
         {error && (
           <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start gap-2 text-xs text-red-500 animate-in fade-in" role="alert">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
