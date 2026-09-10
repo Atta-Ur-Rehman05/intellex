@@ -255,11 +255,14 @@ export const DocumentsPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   const [query, setQuery] = useState('');
+  const [hasPending, setHasPending] = useState(false);
 
   const [isUploadOpen, setIsUploadOpen] = useState(searchParams.get('upload') === '1');
   const [renameDoc, setRenameDoc] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteDoc, setDeleteDoc] = useState(null);
+
+  const hasLoadedOnce = useRef(false);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -267,6 +270,8 @@ export const DocumentsPage = () => {
     try {
       const list = await documentsApi.list();
       setDocs(list);
+      hasLoadedOnce.current = true;
+      setHasPending(list.some((d) => d.status === 'uploading' || d.status === 'processing'));
     } catch (err) {
       setLoadError(err.message || 'Could not load documents.');
     } finally {
@@ -278,11 +283,10 @@ export const DocumentsPage = () => {
 
   // Poll processing docs until they settle (simulates RAG pipeline status)
   useEffect(() => {
-    const hasPending = docs.some((d) => d.status === 'uploading' || d.status === 'processing');
     if (!hasPending) return;
-    const t = setInterval(load, 1500);
+    const t = setInterval(load, 3000);
     return () => clearInterval(t);
-  }, [docs, load]);
+  }, [hasPending, load]);
 
   const filtered = docs.filter((d) => d.name.toLowerCase().includes(query.toLowerCase()));
 
@@ -367,7 +371,7 @@ export const DocumentsPage = () => {
       </div>
 
       {/* Content */}
-      {isLoading ? (
+      {isLoading && !hasLoadedOnce.current ? (
         <DocumentTableSkeleton rows={4} />
       ) : loadError ? (
         <EmptyState
