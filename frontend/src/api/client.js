@@ -37,10 +37,10 @@ const broadcastSessionExpired = () => {
   try { window.dispatchEvent(new CustomEvent('knowva:session-expired')); } catch { /* SSR/tests */ }
 };
 
-export async function request(path, { method = 'GET', body, headers = {}, isForm = false } = {}) {
+export async function request(path, { method = 'GET', body, headers = {}, isForm = false, authFlow = false } = {}) {
   if (!import.meta.env?.VITE_API_BASE_URL) {
     const { mockRequest } = await import('./mockApi.js');
-    return mockRequest(path, { method, body });
+    return mockRequest(path, { method, body, token: tokenStore.get() });
   }
 
   const token = tokenStore.get();
@@ -60,6 +60,14 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
   }
 
   if (res.status === 401) {
+    if (authFlow) {
+      let message = 'Invalid email or password.';
+      try {
+        const data = await res.json();
+        if (typeof data.detail === 'string') message = data.detail;
+      } catch { /* non-JSON body */ }
+      throw new ApiError(message, 401);
+    }
     tokenStore.clear();
     broadcastSessionExpired();
     throw new ApiError('Your session has expired. Please sign in again.', 401);

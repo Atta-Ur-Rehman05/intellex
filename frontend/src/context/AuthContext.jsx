@@ -69,13 +69,6 @@ export const AuthProvider = ({ children }) => {
     return updated;
   }, []);
 
-  // Called by any consumer when an API request returns 401 mid-session
-  const handleSessionExpired = useCallback(() => {
-    tokenStore.clear();
-    setUser(null);
-    setSessionExpired(true);
-  }, []);
-
   const logout = useCallback(() => {
     tokenStore.clear();
     setUser(null);
@@ -92,7 +85,6 @@ export const AuthProvider = ({ children }) => {
         register,
         updateProfile,
         logout,
-        handleSessionExpired,
       }}
     >
       {children}

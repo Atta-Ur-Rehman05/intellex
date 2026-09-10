@@ -43,7 +43,7 @@ export const SettingsPage = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    navigate('/login');
   };
 
   return (

@@ -7,8 +7,8 @@ import { requestWithProgress } from './client.js';
 
 /* ============ AUTH ============ */
 export const authApi = {
-  register: (data) => apiClient.post('/auth/register', data),
-  login: (data) => apiClient.post('/auth/login', data),
+  register: (data) => apiClient.post('/auth/register', data, { authFlow: true }),
+  login: (data) => apiClient.post('/auth/login', data, { authFlow: true }),
   me: () => apiClient.get('/auth/me'),
   updateProfile: (name) => apiClient.patch('/auth/me', { name }),
 };

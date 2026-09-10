@@ -64,7 +64,12 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const err = (detail, status) => Promise.reject(new ApiError(detail, status));
 
-export async function mockRequest(path, { method = 'GET', body } = {}) {
+const resolveUser = (token) => {
+  const userId = typeof token === 'string' && token.startsWith('mock-') ? token.slice(5) : null;
+  return users.find((u) => u.id === userId) || users[0];
+};
+
+export async function mockRequest(path, { method = 'GET', body, token } = {}) {
   const route = `${method} ${path}`;
   const m = (re) => route.match(re);
 
@@ -87,14 +92,16 @@ export async function mockRequest(path, { method = 'GET', body } = {}) {
   }
 
   if (m(/^GET \/auth\/me$/)) {
-    return withDelay({ id: users[0].id, name: users[0].name, email: users[0].email, created_at: users[0].created_at });
+    const u = resolveUser(token);
+    return withDelay({ id: u.id, name: u.name, email: u.email, created_at: u.created_at });
   }
 
   if (m(/^PATCH \/auth\/me$/)) {
     const { name } = body || {};
     if (!name?.trim()) return err('Name cannot be empty.', 422);
-    users[0].name = name.trim();
-    return withDelay({ id: users[0].id, name: users[0].name, email: users[0].email, created_at: users[0].created_at });
+    const u = resolveUser(token);
+    u.name = name.trim();
+    return withDelay({ id: u.id, name: u.name, email: u.email, created_at: u.created_at });
   }
 
   /* ---------------- DASHBOARD ---------------- */

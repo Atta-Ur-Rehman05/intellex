@@ -143,6 +143,7 @@ export const ChatPage = () => {
   /* Load active conversation when route changes */
   useEffect(() => {
     if (conversationId) {
+      if (activeConv?.id === conversationId) return;
       let cancelled = false;
       setIsConvLoading(true);
       chatApi.getConversation(conversationId)
@@ -153,7 +154,7 @@ export const ChatPage = () => {
     }
     setActiveConv(null);
     setIsConvLoading(false);
-  }, [conversationId]);
+  }, [conversationId, activeConv?.id]);
 
   /* Auto scroll */
   useEffect(() => {
