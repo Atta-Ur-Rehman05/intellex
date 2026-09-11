@@ -382,7 +382,7 @@ export const DocumentsPage = () => {
           />
         )
       ) : (
-        <div className="bg-surface border border-border-default rounded-xl overflow-hidden shadow-xs">
+        <div className="bg-surface border border-border-default rounded-xl shadow-xs">
           {/* Table head */}
           <div className="hidden sm:grid grid-cols-[2fr_0.7fr_1fr_1fr_64px] gap-3 px-4 py-3 border-b border-border-default bg-surface-hover/40 text-[10px] font-mono font-bold uppercase tracking-wider text-muted select-none">
             <span>Name</span>

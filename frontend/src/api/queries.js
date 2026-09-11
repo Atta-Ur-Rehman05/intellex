@@ -1,7 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { documentsApi } from '../../api/services.js';
-import { chatApi } from '../../api/services.js';
-import { dashboardApi } from '../../api/services.js';
+import { documentsApi, chatApi, dashboardApi } from './services.js';
 
 /* ============ QUERY KEYS ============ */
 export const documentKeys = {
