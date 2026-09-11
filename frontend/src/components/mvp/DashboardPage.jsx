@@ -1,4 +1,3 @@
-import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FileText, MessageSquare, UploadCloud, Sparkles, ArrowRight
@@ -8,30 +7,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui
 import { EmptyState } from '../ui/EmptyState.jsx';
 import { DashboardSkeleton } from '../ui/Skeleton.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
-import { dashboardApi } from '../../api/services.js';
+import { useDashboard } from '../../api/queries.js';
 import { DocumentStatusBadge, DocumentTypeIcon, formatDate } from './documentShared.jsx';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [data, setData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const d = await dashboardApi.get();
-      setData(d);
-    } catch (err) {
-      setError(err.message || 'Could not load your dashboard.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
+  const { data, isLoading, error, refetch } = useDashboard();
 
   if (isLoading) return <DashboardSkeleton />;
 
@@ -42,8 +24,8 @@ export const DashboardPage = () => {
           <EmptyState
             illustration="no-search-results"
             title="Could not load dashboard"
-            description={error}
-            primaryAction={{ label: 'Retry', variant: 'secondary', onClick: load }}
+            description={error.message || 'Could not load your dashboard.'}
+            primaryAction={{ label: 'Retry', variant: 'secondary', onClick: refetch }}
           />
         </CardContent>
       </Card>

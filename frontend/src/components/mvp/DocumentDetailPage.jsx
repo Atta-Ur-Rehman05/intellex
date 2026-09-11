@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Sparkles, Trash2, FileText, AlertCircle, RefreshCw, Clock, HardDrive, Type
@@ -8,7 +8,7 @@ import { Card, CardHeader, CardContent } from '../ui/Card.jsx';
 import { ConfirmDialog } from '../ui/Modal.jsx';
 import { SkeletonBlock, SkeletonCircle } from '../ui/Skeleton.jsx';
 import { useToast } from '../ui/Toast.jsx';
-import { documentsApi } from '../../api/services.js';
+import { useDocument, useDeleteDocument } from '../../api/queries.js';
 import { DocumentStatusBadge, DocumentTypeIcon, formatDate, formatBytes } from './documentShared.jsx';
 
 export const DocumentDetailPage = () => {
@@ -16,37 +16,15 @@ export const DocumentDetailPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [doc, setDoc] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { data: doc, isLoading, error, refetch } = useDocument(documentId);
+  const deleteMutation = useDeleteDocument();
+
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const d = await documentsApi.get(documentId);
-      setDoc(d);
-    } catch (err) {
-      setError(err.message || 'Could not load this document.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [documentId]);
-
-  useEffect(() => { load(); }, [load]);
-
-  // Poll while processing
-  useEffect(() => {
-    if (!doc || (doc.status !== 'processing' && doc.status !== 'uploading')) return;
-    const t = setInterval(load, 1500);
-    return () => clearInterval(t);
-  }, [doc, load]);
 
   const handleDelete = async () => {
     try {
-      await documentsApi.remove(documentId);
-      toast({ title: 'Document deleted', description: `"${doc.name}" was removed.`, type: 'success' });
+      await deleteMutation.mutateAsync(documentId);
+      toast({ title: 'Document deleted', description: `"${doc?.name}" was removed.`, type: 'success' });
       navigate('/app/documents', { replace: true });
     } catch (err) {
       toast({ title: 'Delete failed', description: err.message, type: 'error' });
@@ -90,10 +68,10 @@ export const DocumentDetailPage = () => {
             <FileText className="w-10 h-10 text-amber-500" />
             <div>
               <h2 className="text-lg font-bold text-primary">Document not found</h2>
-              <p className="text-xs text-secondary mt-1.5">{error}</p>
+              <p className="text-xs text-secondary mt-1.5">{error.message || 'Could not load this document.'}</p>
             </div>
             <div className="flex gap-2.5 mt-2">
-              <Button variant="secondary" size="sm" onClick={load} leftIcon={<RefreshCw className="w-3.5 h-3.5" />}>
+              <Button variant="secondary" size="sm" onClick={refetch} leftIcon={<RefreshCw className="w-3.5 h-3.5" />}>
                 Retry
               </Button>
               <Link to="/app/documents">

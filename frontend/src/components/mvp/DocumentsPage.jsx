@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useRef, useMemo } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import {
   UploadCloud, Search, X, MoreVertical, Pencil, Trash2, Sparkles,
@@ -10,12 +11,12 @@ import { Input } from '../ui/Input.jsx';
 import { EmptyState } from '../ui/EmptyState.jsx';
 import { DocumentTableSkeleton } from '../ui/Skeleton.jsx';
 import { useToast } from '../ui/Toast.jsx';
-import { documentsApi } from '../../api/services.js';
+import { useDocuments, useUploadDocument, useRenameDocument, useDeleteDocument } from '../../api/queries.js';
 import { DocumentStatusBadge, DocumentTypeIcon, formatDate, formatBytes } from './documentShared.jsx';
 import { cn } from '../../lib/utils.js';
 
 /* ============ Upload Modal ============ */
-const UploadModal = ({ isOpen, onClose, onUploaded, onOpenDocument }) => {
+const UploadModal = ({ isOpen, onClose, onUploaded, onOpenDocument, uploadMutation }) => {
   const [file, setFile] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [phase, setPhase] = useState('idle'); // idle | uploading | processing | done | error
@@ -50,9 +51,7 @@ const UploadModal = ({ isOpen, onClose, onUploaded, onOpenDocument }) => {
     setProgress(0);
 
     try {
-      // Progress comes from the request itself (XHR upload events in real mode,
-      // simulated byte progress in mock mode — same UI path either way).
-      const doc = await documentsApi.upload(file, (pct) => setProgress(pct));
+      const doc = await uploadMutation.mutateAsync({ file, onProgress: (pct) => setProgress(pct) });
       setProgress(100);
       setPhase('processing');
       toast({
@@ -251,50 +250,37 @@ export const DocumentsPage = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
-  const [docs, setDocs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState('');
-  const [query, setQuery] = useState('');
-  const [hasPending, setHasPending] = useState(false);
+  const { data: docs = [], isLoading, error, refetch } = useDocuments({
+    staleTime: 30_000,
+    refetchInterval: (query) => {
+      const hasPending = (query.state.data || []).some(
+        (d) => d.status === 'uploading' || d.status === 'processing'
+      );
+      return hasPending ? 3000 : false;
+    },
+  });
 
+  const [query, setQuery] = useState('');
   const [isUploadOpen, setIsUploadOpen] = useState(searchParams.get('upload') === '1');
   const [renameDoc, setRenameDoc] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteDoc, setDeleteDoc] = useState(null);
 
-  const hasLoadedOnce = useRef(false);
+  const uploadMutation = useUploadDocument(() => {
+    toast({ title: 'Document uploaded', type: 'success' });
+  });
+  const renameMutation = useRenameDocument();
+  const deleteMutation = useDeleteDocument();
 
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    setLoadError('');
-    try {
-      const list = await documentsApi.list();
-      setDocs(list);
-      hasLoadedOnce.current = true;
-      setHasPending(list.some((d) => d.status === 'uploading' || d.status === 'processing'));
-    } catch (err) {
-      setLoadError(err.message || 'Could not load documents.');
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  // Poll processing docs until they settle (simulates RAG pipeline status)
-  useEffect(() => {
-    if (!hasPending) return;
-    const t = setInterval(load, 3000);
-    return () => clearInterval(t);
-  }, [hasPending, load]);
-
-  const filtered = docs.filter((d) => d.name.toLowerCase().includes(query.toLowerCase()));
+  const filtered = useMemo(
+    () => docs.filter((d) => d.name.toLowerCase().includes(query.toLowerCase())),
+    [docs, query]
+  );
 
   const handleRenameSave = async () => {
     if (!renameValue.trim()) return;
     try {
-      const updated = await documentsApi.rename(renameDoc.id, renameValue.trim());
-      setDocs((prev) => prev.map((d) => (d.id === updated.id ? updated : d)));
+      const updated = await renameMutation.mutateAsync({ id: renameDoc.id, name: renameValue.trim() });
       toast({ title: 'Document renamed', description: `Now called "${updated.name}".`, type: 'success' });
     } catch (err) {
       toast({ title: 'Rename failed', description: err.message, type: 'error' });
@@ -305,8 +291,7 @@ export const DocumentsPage = () => {
 
   const handleDelete = async () => {
     try {
-      await documentsApi.remove(deleteDoc.id);
-      setDocs((prev) => prev.filter((d) => d.id !== deleteDoc.id));
+      await deleteMutation.mutateAsync(deleteDoc.id);
       toast({ title: 'Document deleted', description: `"${deleteDoc.name}" was removed.`, type: 'success' });
     } catch (err) {
       toast({ title: 'Delete failed', description: err.message, type: 'error' });
@@ -371,14 +356,14 @@ export const DocumentsPage = () => {
       </div>
 
       {/* Content */}
-      {isLoading && !hasLoadedOnce.current ? (
+      {isLoading ? (
         <DocumentTableSkeleton rows={4} />
-      ) : loadError ? (
+      ) : error ? (
         <EmptyState
           illustration="no-search-results"
           title="Could not load documents"
-          description={loadError}
-          primaryAction={{ label: 'Retry', variant: 'secondary', onClick: load }}
+          description={error.message || 'Could not load documents.'}
+          primaryAction={{ label: 'Retry', variant: 'secondary', onClick: refetch }}
         />
       ) : filtered.length === 0 ? (
         query ? (
@@ -465,8 +450,9 @@ export const DocumentsPage = () => {
       <UploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
-        onUploaded={load}
+        onUploaded={() => refetch()}
         onOpenDocument={(docId) => navigate(`/app/documents/${docId}`)}
+        uploadMutation={uploadMutation}
       />
 
       {/* Rename modal */}

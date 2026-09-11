@@ -1,13 +1,21 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Sparkles, Plus, Menu, Trash2, FileText, ExternalLink,
   Copy, Check, ArrowUp, Loader2, MessageSquare, AlertCircle, RotateCcw
 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '../ui/Button.jsx';
 import { Modal, ConfirmDialog } from '../ui/Modal.jsx';
 import { useToast } from '../ui/Toast.jsx';
-import { chatApi } from '../../api/services.js';
+import {
+  useConversations,
+  useConversation,
+  useCreateConversation,
+  useSendMessage,
+  useDeleteConversation,
+  conversationKeys
+} from '../../api/queries.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { ChatCodeBlock } from '../chat/ChatCodeBlock.jsx';
 import { cn } from '../../lib/utils.js';
@@ -105,56 +113,29 @@ export const ChatPage = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const docContext = searchParams.get('doc')
     ? { id: searchParams.get('doc'), name: searchParams.get('name') || 'Document' }
     : null;
 
-  const [conversations, setConversations] = useState([]);
-  const [activeConv, setActiveConv] = useState(null);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
-  const [isConvLoading, setIsConvLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
-  const [error, setError] = useState('');
+  const { data: conversations = [], isLoading: isHistoryLoading, refetch: refetchConversations } = useConversations();
+  const { data: activeConv, isLoading: isConvLoading, refetch: refetchActiveConv } = useConversation(conversationId);
+
+  const createConvMutation = useCreateConversation();
+  const sendMessageMutation = useSendMessage(conversationId);
+  const deleteConvMutation = useDeleteConversation();
 
   const [input, setInput] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [deleteConv, setDeleteConv] = useState(null);
   const [activeSource, setActiveSource] = useState(null);
   const [lastFailed, setLastFailed] = useState(null);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState('');
 
   const endRef = useRef(null);
   const textareaRef = useRef(null);
-
-  /* Load conversation list */
-  const loadConversations = useCallback(async () => {
-    try {
-      const list = await chatApi.listConversations();
-      setConversations(list);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsHistoryLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { loadConversations(); }, [loadConversations]);
-
-  /* Load active conversation when route changes */
-  useEffect(() => {
-    if (conversationId) {
-      if (activeConv?.id === conversationId) return;
-      let cancelled = false;
-      setIsConvLoading(true);
-      chatApi.getConversation(conversationId)
-        .then((conv) => { if (!cancelled) setActiveConv(conv); })
-        .catch((err) => { if (!cancelled) setError(err.message); })
-        .finally(() => { if (!cancelled) setIsConvLoading(false); });
-      return () => { cancelled = true; };
-    }
-    setActiveConv(null);
-    setIsConvLoading(false);
-  }, [conversationId, activeConv?.id]);
 
   /* Auto scroll */
   useEffect(() => {
@@ -170,16 +151,14 @@ export const ChatPage = () => {
   }, [input]);
 
   /* Create conversation on first message — passes doc scope so the
-     backend can restrict retrieval to the selected documents */
+     backend can restrict retrieval to specific documents */
   const ensureConversation = async () => {
     if (conversationId) return activeConv;
-    const conv = await chatApi.createConversation(
-      docContext ? `About ${docContext.name}` : 'New Chat',
-      docContext ? [docContext.id] : []
+    const conv = await createConvMutation.mutateAsync(
+      docContext ? { title: `About ${docContext.name}`, documentIds: [docContext.id] } : { title: 'New Chat' }
     );
-    setConversations((prev) => [conv, ...prev]);
+    queryClient.invalidateQueries({ queryKey: conversationKeys.list() });
     navigate(`/app/chat/${conv.id}`, { replace: true });
-    setActiveConv(conv);
     return conv;
   };
 
@@ -201,28 +180,35 @@ export const ChatPage = () => {
 
     // Optimistic user message
     const tempId = `temp-${Date.now()}`;
-    setActiveConv((prev) => ({
-      ...conv,
-      messages: [...(prev?.messages || []), { id: tempId, role: 'user', content: text, created_at: new Date().toISOString() }],
-    }));
+    const optimisticMsg = { id: tempId, role: 'user', content: text, created_at: new Date().toISOString() };
+
+    queryClient.setQueryData(conversationKeys.detail(conv.id), (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        messages: [...(old.messages || []), optimisticMsg],
+      };
+    });
 
     setIsSending(true);
     try {
-      await chatApi.sendMessage(conv.id, text);
+      await sendMessageMutation.mutateAsync(text);
       // Refresh the conversation to get canonical message list
-      const fresh = await chatApi.getConversation(conv.id);
-      setActiveConv(fresh);
-      loadConversations(); // refresh titles/order
+      await refetchActiveConv();
+      await refetchConversations();
       setLastFailed(null);
     } catch (err) {
       const message = err.message || 'The AI could not answer right now. Please try again.';
       setError(message);
       setLastFailed(text);
       // Remove the optimistic message so the thread stays honest
-      setActiveConv((prev) => ({
-        ...prev,
-        messages: (prev?.messages || []).filter((m) => m.id !== tempId),
-      }));
+      queryClient.setQueryData(conversationKeys.detail(conv.id), (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          messages: (old.messages || []).filter((m) => m.id !== tempId),
+        };
+      });
     } finally {
       setIsSending(false);
     }
@@ -245,13 +231,11 @@ export const ChatPage = () => {
 
   const handleDeleteConv = async () => {
     try {
-      await chatApi.removeConversation(deleteConv);
-      setConversations((prev) => prev.filter((c) => c.id !== deleteConv));
+      await deleteConvMutation.mutateAsync(deleteConv);
+      toast({ title: 'Conversation deleted', type: 'success' });
       if (conversationId === deleteConv) {
-        setActiveConv(null);
         navigate('/app/chat', { replace: true });
       }
-      toast({ title: 'Conversation deleted', type: 'success' });
     } catch (err) {
       toast({ title: 'Delete failed', description: err.message, type: 'error' });
     } finally {
