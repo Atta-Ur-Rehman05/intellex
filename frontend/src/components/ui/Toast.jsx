@@ -1,60 +1,10 @@
-import { createContext, useContext, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { CheckCircle2, AlertCircle, AlertTriangle, Info, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle2, AlertCircle, AlertTriangle, Info, Sparkles, X } from 'lucide-react';
+import { useToastStore } from '../../stores/toastStore.js';
 import { cn } from '../../lib/utils';
-import { ToastContext, useToast } from './useToast.js';
 
-/**
- * Toast Provider for Knowva Design System
- */
-export const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
-
-  const removeToast = useCallback((id) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
-  const addToast = useCallback(({
-    title,
-    description,
-    type = 'info', // 'success' | 'error' | 'warning' | 'info' | 'ai-processing'
-    duration = 4000,
-    action
-  }) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    const newToast = { id, title, description, type, duration, action };
-
-    setToasts((prev) => [...prev, newToast]);
-
-    if (duration > 0 && type !== 'ai-processing') {
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
-    }
-
-    return id;
-  }, [removeToast]);
-
-  return (
-    <ToastContext.Provider value={{ toast: addToast, dismiss: removeToast, toasts }}>
-      {children}
-      {typeof document !== 'undefined' && createPortal(
-        <div 
-          aria-live="polite" 
-          className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"
-        >
-          <AnimatePresence>
-            {toasts.map((item) => (
-              <ToastItem key={item.id} item={item} onDismiss={() => removeToast(item.id)} />
-            ))}
-          </AnimatePresence>
-        </div>,
-        document.body
-      )}
-    </ToastContext.Provider>
-  );
-};
+export const useToast = () => useToastStore();
 
 const ToastItem = ({ item, onDismiss }) => {
   const icons = {
@@ -123,4 +73,26 @@ const ToastItem = ({ item, onDismiss }) => {
   );
 };
 
-export { useToast };
+export const ToastProvider = ({ children }) => {
+  const toasts = useToastStore((s) => s.toasts);
+  const dismiss = useToastStore((s) => s.dismiss);
+
+  return (
+    <>
+      {children}
+      {typeof document !== 'undefined' && createPortal(
+        <div
+          aria-live="polite"
+          className="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"
+        >
+          <AnimatePresence>
+            {toasts.map((item) => (
+              <ToastItem key={item.id} item={item} onDismiss={() => dismiss(item.id)} />
+            ))}
+          </AnimatePresence>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+};
