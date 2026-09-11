@@ -3,16 +3,7 @@ import { createPortal } from 'react-dom';
 import { CheckCircle2, AlertCircle, AlertTriangle, Info, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
-
-const ToastContext = createContext(null);
-
-export const useToast = () => {
-  const context = useContext(ToastContext);
-  if (!context) {
-    throw new Error('useToast must be used within a ToastProvider');
-  }
-  return context;
-};
+import { ToastContext, useToast } from './useToast.js';
 
 /**
  * Toast Provider for Knowva Design System
@@ -131,3 +122,5 @@ const ToastItem = ({ item, onDismiss }) => {
     </motion.div>
   );
 };
+
+export { useToast };
