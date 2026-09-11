@@ -1,5 +1,5 @@
 /**
- * Knowva MVP — Feature API services
+ * INTELLEX MVP — Feature API services
  * Thin, typed wrappers over the FastAPI endpoints.
  */
 import { apiClient } from './client.js';

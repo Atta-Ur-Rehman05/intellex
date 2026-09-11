@@ -47,7 +47,7 @@ export const AppLayout = () => {
           <LogoIcon className="w-5 h-5" />
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-bold text-primary tracking-tight">Knowva</div>
+          <div className="text-sm font-bold text-primary tracking-tight">INTELLEX</div>
           <div className="text-[10px] text-muted font-mono truncate">AI Knowledge Workspace</div>
         </div>
       </div>
@@ -171,7 +171,7 @@ export const AppLayout = () => {
               <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-brand-600 to-purple-600 flex items-center justify-center text-white">
                 <LogoIcon className="w-4 h-4" />
               </div>
-              <span className="text-sm font-bold text-primary">Knowva</span>
+               <span className="text-sm font-bold text-primary">INTELLEX</span>
             </div>
           </div>
 

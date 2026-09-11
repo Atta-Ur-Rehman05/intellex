@@ -176,7 +176,7 @@ const UploadModal = ({ isOpen, onClose, onUploaded, onOpenDocument, uploadMutati
             <div>
               <p className="text-sm font-semibold text-primary">Processing document…</p>
               <p className="text-xs text-secondary mt-1">
-                Knowva is extracting text and building embeddings for &quot;{file?.name}&quot;.
+                INTELLEX is extracting text and building embeddings for &quot;{file?.name}&quot;.
               </p>
             </div>
             <div className="flex items-center gap-1.5 pt-1" aria-hidden="true">
@@ -377,7 +377,7 @@ export const DocumentsPage = () => {
           <EmptyState
             illustration="no-documents"
             title="No documents yet"
-            description="Upload your first PDF or TXT file. Knowva will process it so you can ask AI questions about it."
+             description="Upload your first PDF or TXT file. INTELLEX will process it so you can ask AI questions about it."
             primaryAction={{ label: 'Upload Document', variant: 'primary', onClick: () => setIsUploadOpen(true) }}
           />
         )

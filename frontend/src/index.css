@@ -91,7 +91,7 @@
   --ai-border: rgba(99, 102, 241, 0.25);
 }
 
-/* Dark Mode Tokens (Knowva Enterprise Dark) */
+/* Dark Mode Tokens (INTELLEX Enterprise Dark) */
 .dark {
   --bg-canvas: #070b14;
   --bg-surface: #0f172a;
@@ -132,7 +132,7 @@ html, body {
   transition: background-color 200ms ease, color 200ms ease;
 }
 
-/* Custom Utilities for Knowva Design System */
+/* Custom Utilities for INTELLEX Design System */
 .ai-glass {
   background: radial-gradient(100% 100% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, rgba(15, 23, 42, 0.0) 100%);
   backdrop-filter: blur(12px);

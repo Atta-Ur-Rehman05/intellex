@@ -2,7 +2,7 @@ import { cn } from '../../lib/utils';
 import { Tooltip } from './Tooltip';
 
 /**
- * Avatar Component - Knowva Design System
+ * Avatar Component - INTELLEX Design System
  *
  * Presence: 'online' | 'busy' | 'offline' | 'ai'
  * Sizes: 'xs' | 'sm' | 'md' | 'lg' | 'xl'

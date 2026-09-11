@@ -1,7 +1,7 @@
 import { cn } from '../../lib/utils';
 
 /**
- * Card Component - Knowva Design System
+ * Card Component - INTELLEX Design System
  * 
  * Variants:
  * - standard: Flat surface with subtle border

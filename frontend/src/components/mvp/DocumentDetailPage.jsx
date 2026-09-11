@@ -129,7 +129,7 @@ export const DocumentDetailPage = () => {
               <div>
                 <p className="text-xs font-bold text-primary">Processing in progress</p>
                 <p className="text-xs text-secondary mt-0.5">
-                  Knowva is extracting text and building embeddings. This usually takes under a minute — the page updates automatically.
+                   INTELLEX is extracting text and building embeddings. This usually takes under a minute — the page updates automatically.
                 </p>
               </div>
             </div>

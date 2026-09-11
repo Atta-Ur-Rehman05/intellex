@@ -1,7 +1,7 @@
 import { cn } from '../../lib/utils';
 
 /**
- * Skeleton Primitives - Knowva Design System
+ * Skeleton Primitives - INTELLEX Design System
  *
  * Shape-faithful shimmer placeholders. The shimmer is a CSS gradient sweep
  * (see index.css @keyframes knowva-shimmer). Containers set aria-busy.

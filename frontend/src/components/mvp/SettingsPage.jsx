@@ -60,7 +60,7 @@ export const SettingsPage = () => {
             <User className="w-5 h-5 text-brand-500" />
             <div>
               <CardTitle>Profile</CardTitle>
-              <CardDescription>How you appear in Knowva</CardDescription>
+              <CardDescription>How you appear in INTELLEX</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -105,7 +105,7 @@ export const SettingsPage = () => {
             <Sun className="w-5 h-5 text-brand-500" />
             <div>
               <CardTitle>Appearance</CardTitle>
-              <CardDescription>Choose how Knowva looks. System follows your device preference.</CardDescription>
+              <CardDescription>Choose how INTELLEX looks. System follows your device preference.</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -176,7 +176,7 @@ export const SettingsPage = () => {
             <LogOut className="w-5 h-5 text-brand-500" />
             <div>
               <CardTitle>Account</CardTitle>
-              <CardDescription>Sign out of Knowva on this device</CardDescription>
+              <CardDescription>Sign out of INTELLEX on this device</CardDescription>
             </div>
           </div>
         </CardHeader>

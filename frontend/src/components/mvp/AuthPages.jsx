@@ -30,7 +30,7 @@ export const AuthShell = ({ title, subtitle, children }) => {
           className="flex items-center gap-2 text-xs font-medium text-secondary hover:text-primary transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Knowva</span>
+          <span>Back to INTELLEX</span>
         </Link>
         <ThemeToggleButton />
       </div>
@@ -121,7 +121,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <AuthShell title="Sign In" subtitle="Welcome back — sign in to your Knowva workspace.">
+    <AuthShell title="Sign In" subtitle="Welcome back — sign in to your INTELLEX workspace.">
       <div className="space-y-5">
         {sessionExpired && !error && <SessionExpiredNotice />}
         {error && (

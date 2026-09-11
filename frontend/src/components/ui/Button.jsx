@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 /**
- * Button Component - Knowva Design System
+ * Button Component - INTELLEX Design System
  * 
  * Variants: primary, secondary, ghost, destructive, outline, ai
  * Sizes: sm, md, lg, icon

@@ -3,7 +3,7 @@ import { Button } from './Button';
 import { cn } from '../../lib/utils';
 
 /**
- * EmptyState Component - Knowva Design System
+ * EmptyState Component - INTELLEX Design System
  *
  * Illustrated, informative, action-oriented placeholder for zero-data surfaces.
  * Anatomy: illustration (140px) → title → context → primary + secondary actions.

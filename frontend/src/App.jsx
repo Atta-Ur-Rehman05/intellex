@@ -27,7 +27,7 @@ const BootSplash = () => (
   <div className="min-h-screen bg-canvas flex items-center justify-center" role="status" aria-busy="true">
     <div className="flex flex-col items-center gap-3">
       <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-brand-600 to-purple-600 animate-pulse" />
-      <p className="text-xs text-muted font-mono">Loading Knowva…</p>
+       <p className="text-xs text-muted font-mono">Loading INTELLEX…</p>
     </div>
   </div>
 );

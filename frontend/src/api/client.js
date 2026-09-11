@@ -1,5 +1,5 @@
 /**
- * Knowva API Types (JSDoc)
+ * INTELLEX API Types (JSDoc)
  *
  * AuthUser:      { id, email, name, created_at }
  * Document:      { id, name, file_type, size_bytes, status, created_at, updated_at, error_message? }

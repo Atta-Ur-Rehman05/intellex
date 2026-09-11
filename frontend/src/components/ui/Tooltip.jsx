@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { cn } from '../../lib/utils';
 
 /**
- * Tooltip Component - Knowva Design System
+ * Tooltip Component - INTELLEX Design System
  * 
  * Supports placements: top, bottom, left, right
  * Accessible via mouse hover and keyboard focus

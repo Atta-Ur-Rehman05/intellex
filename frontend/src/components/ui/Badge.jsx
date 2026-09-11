@@ -2,7 +2,7 @@ import { Sparkles } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 /**
- * Badge Component - Knowva Design System
+ * Badge Component - INTELLEX Design System
  * 
  * Variants: success, warning, error, info, neutral, ai, brand
  * Sizes: sm, md, lg

@@ -7,7 +7,7 @@ import { cn } from '../../lib/utils';
 const FOCUSABLE = 'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /**
- * Modal Component - Knowva Design System
+ * Modal Component - INTELLEX Design System
  *
  * Includes backdrop blur, ESC key dismiss, body scroll lock, focus trap,
  * focus restore, and accessible ARIA roles.

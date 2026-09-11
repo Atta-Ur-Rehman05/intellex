@@ -11,7 +11,7 @@ const steps = [
   {
     icon: UploadCloud,
     title: '1. Upload Documents',
-    desc: 'Drag in your PDFs or text files. Knowva securely stores and indexes them in seconds.',
+    desc: 'Drag in your PDFs or text files. INTELLEX securely stores and indexes them in seconds.',
   },
   {
     icon: Cpu,
@@ -42,7 +42,7 @@ export const LandingPage = () => {
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-sm font-bold text-primary tracking-tight">Knowva</div>
+            <div className="text-sm font-bold text-primary tracking-tight">INTELLEX</div>
             <div className="text-[10px] text-muted font-mono">AI Knowledge Workspace</div>
           </div>
         </div>
@@ -82,7 +82,7 @@ export const LandingPage = () => {
           </h1>
 
           <p className="text-base sm:text-lg text-secondary leading-relaxed max-w-xl mx-auto">
-            Upload your documents and ask AI questions about them. Knowva reads your
+            Upload your documents and ask AI questions about them. INTELLEX reads your
             knowledge base and answers with verified sources — no more digging through files.
           </p>
 
@@ -145,7 +145,7 @@ export const LandingPage = () => {
       <footer className="relative border-t border-border-default px-4 py-6 max-w-6xl mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted">
         <div className="flex items-center gap-2">
           <FileText className="w-3.5 h-3.5" />
-          <span>© 2026 Knowva — Your AI Knowledge Workspace</span>
+          <span>© 2026 INTELLEX — Your AI Knowledge Workspace</span>
         </div>
         <div className="flex items-center gap-4">
           <span>Privacy Policy</span>
