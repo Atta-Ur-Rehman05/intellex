@@ -11,6 +11,16 @@ import { DocumentDetailPage } from './components/mvp/DocumentDetailPage.jsx';
 import { ChatPage } from './components/mvp/ChatPage.jsx';
 import { SettingsPage } from './components/mvp/SettingsPage.jsx';
 import { ErrorScreen } from './components/ui/ErrorScreen.jsx';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 /* ---------- Full-screen bootstrap spinner ---------- */
 const BootSplash = () => (
@@ -67,10 +77,11 @@ const NotFoundInline = () => {
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <ToastProvider>
-        <AuthProvider>
-          <Routes>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <Routes>
             {/* Public */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<RedirectIfAuth><LoginPage /></RedirectIfAuth>} />
@@ -94,5 +105,6 @@ export default function App() {
         </AuthProvider>
       </ToastProvider>
     </ThemeProvider>
+    </QueryClientProvider>
   );
 }
