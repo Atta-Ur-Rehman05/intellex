@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -16,7 +16,14 @@ def register(data: UserCreate, db: Session = Depends(get_db)) -> User:
 
 
 @router.post("/login", response_model=TokenResponse)
-def login(data: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse:
+async def login(request: Request, db: Session = Depends(get_db)) -> TokenResponse:
+    """Accept JSON credentials and OAuth2 form credentials used by Swagger UI."""
+    content_type = request.headers.get("content-type", "")
+    if content_type.startswith("application/x-www-form-urlencoded"):
+        form = await request.form()
+        data = LoginRequest(email=str(form.get("username", "")), password=str(form.get("password", "")))
+    else:
+        data = LoginRequest.model_validate(await request.json())
     service = AuthService(db)
     user = service.authenticate_user(data.email, data.password)
     return TokenResponse(access_token=service.create_access_token(user))

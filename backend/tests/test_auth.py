@@ -66,6 +66,16 @@ def test_login_me_and_logout() -> None:
     assert client.post("/api/v1/auth/logout", headers=headers).json() == {"message": "Successfully logged out"}
 
 
+def test_swagger_oauth2_form_login() -> None:
+    register_user()
+    login = client.post(
+        "/api/v1/auth/login",
+        data={"username": "user@example.com", "password": "strong-password"},
+    )
+    assert login.status_code == 200
+    assert login.json()["token_type"] == "bearer"
+
+
 def test_invalid_credentials_and_missing_token_rejected() -> None:
     register_user()
     assert client.post("/api/v1/auth/login", json={"email": "user@example.com", "password": "wrong-password"}).status_code == 401
