@@ -19,18 +19,23 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_URL = import.meta.env?.VITE_API_BASE_URL || '/api';
-const TOKEN_KEY = 'knowva_access_token';
+const BASE_URL = import.meta.env?.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
+const TOKEN_KEY = 'intellex_access_token';
+const LEGACY_TOKEN_KEY = 'knowva_access_token';
 
 export const tokenStore = {
   get: () => { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } },
   set: (t) => { try { localStorage.setItem(TOKEN_KEY, t); } catch { /* noop */ } },
-  clear: () => { try { localStorage.removeItem(TOKEN_KEY); } catch { /* noop */ } },
+  clear: () => {
+    try {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(LEGACY_TOKEN_KEY);
+    } catch { /* noop */ }
+  },
 };
 
 /**
- * Low-level request helper. Swap `mockRequest` for the real fetch adapter
- * below once the FastAPI backend is live.
+ * Low-level request helper for the FastAPI backend.
  */
 /** Broadcast so AuthContext can log out and redirect on mid-session 401s. */
 const broadcastSessionExpired = () => {
@@ -38,11 +43,6 @@ const broadcastSessionExpired = () => {
 };
 
 export async function request(path, { method = 'GET', body, headers = {}, isForm = false, authFlow = false } = {}) {
-  if (!import.meta.env?.VITE_API_BASE_URL) {
-    const { mockRequest } = await import('./mockApi.js');
-    return mockRequest(path, { method, body, token: tokenStore.get() });
-  }
-
   const token = tokenStore.get();
   const finalHeaders = { ...headers };
   if (token) finalHeaders['Authorization'] = `Bearer ${token}`;
@@ -65,6 +65,7 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
       try {
         const data = await res.json();
         if (typeof data.detail === 'string') message = data.detail;
+        else if (typeof data.error === 'string') message = data.error;
       } catch { /* non-JSON body */ }
       throw new ApiError(message, 401);
     }
@@ -81,6 +82,8 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
       details = data;
       message = typeof data.detail === 'string'
         ? data.detail
+        : typeof data.error === 'string'
+          ? data.error
         : Object.values(data).flat?.()[0]?.msg || data.message || message;
     } catch { /* non-JSON error body */ }
     throw new ApiError(message, res.status, details);
@@ -122,7 +125,11 @@ export function requestWithProgress(path, { method = 'POST', body, onUploadProgr
         resolve(xhr.status === 204 ? null : data);
       } else {
         const message = data
-          ? (typeof data.detail === 'string' ? data.detail : Object.values(data).flat?.()[0]?.msg || data.message)
+          ? (typeof data.detail === 'string'
+            ? data.detail
+            : typeof data.error === 'string'
+              ? data.error
+              : Object.values(data).flat?.()[0]?.msg || data.message)
           : `Request failed (${xhr.status})`;
         reject(new ApiError(message || `Request failed (${xhr.status})`, xhr.status, data));
       }

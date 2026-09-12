@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { authApi } from '../api/services.js';
 import { tokenStore } from '../api/client.js';
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: null,
   isBootstrapping: true,
   sessionExpired: false,
@@ -22,17 +22,16 @@ export const useAuthStore = create((set) => ({
   },
 
   login: async (email, password) => {
-    const res = await authApi.login({ email, password });
-    tokenStore.set(res.access_token);
-    set({ user: res.user, sessionExpired: false });
-    return res.user;
+    const tokenResponse = await authApi.login({ email, password });
+    tokenStore.set(tokenResponse.access_token);
+    const user = await authApi.me();
+    set({ user, sessionExpired: false });
+    return user;
   },
 
   register: async (name, email, password) => {
-    const res = await authApi.register({ name, email, password });
-    tokenStore.set(res.access_token);
-    set({ user: res.user, sessionExpired: false });
-    return res.user;
+    await authApi.register({ full_name: name, email, password });
+    return get().login(email, password);
   },
 
   updateProfile: async (name) => {
@@ -41,9 +40,13 @@ export const useAuthStore = create((set) => ({
     return updated;
   },
 
-  logout: () => {
-    tokenStore.clear();
-    set({ user: null, sessionExpired: false });
+  logout: async () => {
+    try {
+      if (tokenStore.get()) await authApi.logout();
+    } finally {
+      tokenStore.clear();
+      set({ user: null, sessionExpired: false });
+    }
   },
 
   setSessionExpired: (value) => set({ sessionExpired: value }),
