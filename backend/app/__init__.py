@@ -1,0 +1,1 @@
+"""Intellex backend application package."""
