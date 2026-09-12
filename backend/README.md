@@ -1,6 +1,6 @@
 # Intellex Backend
 
-Phase 1 provides the maintainable FastAPI foundation for Intellex. It includes centralized configuration, PostgreSQL/SQLAlchemy wiring, Alembic, CORS, logging, error handling, API versioning, and a health endpoint. Business features are intentionally deferred.
+Phase 2 adds focused authentication to the Phase 1 foundation: users, Argon2 password hashing, JWT access tokens, protected current-user access, and stateless logout. Documents and other business features remain deferred.
 
 ## Requirements
 
@@ -25,6 +25,19 @@ uvicorn app.main:app --reload
 
 The API is available at `http://localhost:8000`; Swagger UI is at `/docs` and the basic health check is `GET /health`.
 
+## Authentication
+
+Authentication follows `Router -> Service -> Repository -> Database`.
+
+- `POST /api/v1/auth/register` creates a user.
+- `POST /api/v1/auth/login` accepts `{ "email": "user@example.com", "password": "strong-password" }` and returns a bearer access token.
+- `GET /api/v1/auth/me` returns the authenticated user and requires `Authorization: Bearer <token>`.
+- `POST /api/v1/auth/logout` returns success; because access tokens are stateless, the client must discard its token.
+
+Passwords are hashed with Argon2 and never appear in responses. JWT settings are configured with `JWT_SECRET_KEY`, `JWT_ALGORITHM`, and `JWT_ACCESS_TOKEN_EXPIRE_MINUTES`.
+
+In Swagger, register a user, log in, copy the returned token, select **Authorize**, enter `Bearer <token>`, and call `/auth/me`.
+
 ## Database migrations
 
 ```bash
@@ -38,6 +51,8 @@ The initial migration is intentionally empty; future models will be registered t
 ```bash
 pytest
 ```
+
+Authentication tests use an isolated in-memory SQLite database and do not modify PostgreSQL data.
 
 ## Architecture
 
