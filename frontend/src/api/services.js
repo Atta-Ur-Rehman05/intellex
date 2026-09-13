@@ -15,15 +15,37 @@ export const authApi = {
 };
 
 /* ============ DOCUMENTS ============ */
+// The backend exposes canonical metadata names (`mime_type`, `file_size`),
+// while the existing document UI uses `file_type` and `size_bytes`.
+// Normalize once here so every document screen receives the same shape.
+const normalizeDocument = (document) => {
+  if (!document) return document;
+
+  const fileType = document.file_type || (
+    document.mime_type === 'application/pdf' ? 'pdf' :
+      document.mime_type === 'text/plain' ? 'txt' : undefined
+  );
+
+  return {
+    ...document,
+    file_type: fileType,
+    size_bytes: document.size_bytes ?? document.file_size,
+  };
+};
+
 export const documentsApi = {
-  list: () => apiClient.get('/documents'),
+  list: async () => {
+    const documents = await apiClient.get('/documents');
+    return Array.isArray(documents) ? documents.map(normalizeDocument) : [];
+  },
   upload: (file, onUploadProgress) => {
     const form = new FormData();
     form.append('file', file);
-    return requestWithProgress('/documents', { method: 'POST', body: form, onUploadProgress });
+    return requestWithProgress('/documents', { method: 'POST', body: form, onUploadProgress })
+      .then(normalizeDocument);
   },
-  get: (id) => apiClient.get(`/documents/${id}`),
-  rename: (id, name) => apiClient.patch(`/documents/${id}`, { name }),
+  get: (id) => apiClient.get(`/documents/${id}`).then(normalizeDocument),
+  rename: (id, name) => apiClient.patch(`/documents/${id}`, { name }).then(normalizeDocument),
   remove: (id) => apiClient.del(`/documents/${id}`),
 };
 
