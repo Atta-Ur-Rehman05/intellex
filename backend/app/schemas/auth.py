@@ -31,6 +31,18 @@ class UserResponse(BaseModel):
     updated_at: datetime
 
 
+class UserUpdate(BaseModel):
+    full_name: str = Field(min_length=1, max_length=150)
+
+    @field_validator("full_name")
+    @classmethod
+    def normalize_full_name(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Full name cannot be empty")
+        return value
+
+
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
