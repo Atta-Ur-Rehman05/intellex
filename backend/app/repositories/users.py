@@ -22,3 +22,10 @@ class UserRepository:
         self.db.commit()
         self.db.refresh(user)
         return user
+
+    def update(self, user: User, **values: object) -> User:
+        for key, value in values.items():
+            setattr(user, key, value)
+        self.db.commit()
+        self.db.refresh(user)
+        return user

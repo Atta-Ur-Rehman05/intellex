@@ -6,6 +6,7 @@ from app.core.security import create_access_token, hash_password, verify_passwor
 from app.models.user import User
 from app.repositories.users import UserRepository
 from app.schemas.auth import UserCreate
+from app.schemas.auth import UserUpdate
 
 INVALID_CREDENTIALS = "Invalid email or password"
 
@@ -34,3 +35,6 @@ class AuthService:
 
     def create_access_token(self, user: User) -> str:
         return create_access_token(user.id)
+
+    def update_user(self, user: User, data: UserUpdate) -> User:
+        return self.users.update(user, full_name=data.full_name)
