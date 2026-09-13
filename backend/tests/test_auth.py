@@ -66,6 +66,15 @@ def test_login_me_and_logout() -> None:
     assert client.post("/api/v1/auth/logout", headers=headers).json() == {"message": "Successfully logged out"}
 
 
+def test_authenticated_user_can_update_full_name() -> None:
+    register_user()
+    login = client.post("/api/v1/auth/login", json={"email": "user@example.com", "password": "strong-password"})
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    response = client.patch("/api/v1/auth/me", headers=headers, json={"full_name": "Updated User"})
+    assert response.status_code == 200
+    assert response.json()["full_name"] == "Updated User"
+
+
 def test_swagger_oauth2_form_login() -> None:
     register_user()
     login = client.post(
