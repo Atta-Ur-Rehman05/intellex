@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User
-from app.schemas.auth import LoginRequest, LogoutResponse, TokenResponse, UserCreate, UserResponse
+from app.schemas.auth import LoginRequest, LogoutResponse, TokenResponse, UserCreate, UserResponse, UserUpdate
 from app.services.auth import AuthService
 
 router = APIRouter()
@@ -32,6 +32,11 @@ async def login(request: Request, db: Session = Depends(get_db)) -> TokenRespons
 @router.get("/me", response_model=UserResponse)
 def me(current_user: User = Depends(get_current_user)) -> User:
     return current_user
+
+
+@router.patch("/me", response_model=UserResponse)
+def update_me(data: UserUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> User:
+    return AuthService(db).update_user(current_user, data)
 
 
 @router.post("/logout", response_model=LogoutResponse)
