@@ -126,7 +126,7 @@ const UploadModal = ({ isOpen, onClose, onUploaded, onOpenDocument, uploadMutati
                   {file ? file.name : 'Drop your file here'}
                 </p>
                 <p className="text-xs text-secondary mt-1">
-                  {file ? formatBytes(file.size) : 'or click to browse — PDF and TXT, max 20 MB'}
+                  {file ? formatBytes(file.size) : 'or click to browse — PDF and TXT, max 10 MB'}
                 </p>
               </div>
               <input

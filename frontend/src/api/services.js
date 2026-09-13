@@ -6,12 +6,20 @@ import { apiClient } from './client.js';
 import { requestWithProgress } from './client.js';
 
 /* ============ AUTH ============ */
+const normalizeUser = (user) => {
+  if (!user) return user;
+  return {
+    ...user,
+    name: user.name ?? user.full_name,
+  };
+};
+
 export const authApi = {
-  register: (data) => apiClient.post('/auth/register', data, { authFlow: true }),
+  register: (data) => apiClient.post('/auth/register', data, { authFlow: true }).then(normalizeUser),
   login: (data) => apiClient.post('/auth/login', data, { authFlow: true }),
-  me: () => apiClient.get('/auth/me'),
+  me: () => apiClient.get('/auth/me').then(normalizeUser),
   logout: () => apiClient.post('/auth/logout'),
-  updateProfile: (name) => apiClient.patch('/auth/me', { name }),
+  updateProfile: (name) => apiClient.patch('/auth/me', { full_name: name }).then(normalizeUser),
 };
 
 /* ============ DOCUMENTS ============ */
