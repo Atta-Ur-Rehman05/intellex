@@ -4,7 +4,10 @@ import { CheckCircle2, AlertCircle, AlertTriangle, Info, Sparkles, X } from 'luc
 import { useToastStore } from '../../stores/toastStore.js';
 import { cn } from '../../lib/utils';
 
-export const useToast = () => useToastStore();
+export const useToast = () => {
+  const addToast = useToastStore((state) => state.addToast);
+  return { toast: addToast };
+};
 
 const ToastItem = ({ item, onDismiss }) => {
   const icons = {
