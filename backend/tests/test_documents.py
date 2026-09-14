@@ -36,6 +36,8 @@ def test_upload_list_rename_and_delete_document() -> None:
     assert document["status"] == "ready"
     with SessionLocal() as db:
         assert db.query(DocumentChunk).filter(DocumentChunk.document_id == UUID(document["id"])).count() == 1
+        chunk = db.query(DocumentChunk).filter(DocumentChunk.document_id == UUID(document["id"])).one()
+        assert len(chunk.embedding) == 384
     with SessionLocal() as db:
         stored = db.get(Document, UUID(document["id"]))
         assert stored is not None and Path(stored.file_path).is_file()

@@ -6,6 +6,30 @@ from app.processors.chunkers import TextChunker
 from app.processors.cleaners import TextCleaner
 from app.processors.errors import ProcessingError
 from app.processors.loaders import PDFLoader, TXTLoader
+from app.embeddings.service import EmbeddingService
+
+
+class FakeProvider:
+    def __init__(self, vectors: list[list[float]]) -> None:
+        self.vectors = vectors
+
+    def embed_text(self, text: str) -> list[float]:
+        return self.vectors[0]
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
+        return self.vectors
+
+
+def test_embedding_service_validates_single_and_batch_vectors() -> None:
+    vector = [float(index) for index in range(384)]
+    service = EmbeddingService(FakeProvider([vector, vector]))
+    assert len(service.embed_text("hello")) == 384
+    assert service.embed_documents(["one", "two"]) == [vector, vector]
+
+    with pytest.raises(ProcessingError):
+        service.embed_text(" ")
+    with pytest.raises(ProcessingError):
+        EmbeddingService(FakeProvider([[0.0] * 3])).embed_text("hello")
 
 
 def test_txt_loader_reads_utf8_and_rejects_empty(tmp_path: Path) -> None:
