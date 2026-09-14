@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     jwt_access_token_expire_minutes: int = 30
     document_storage_path: str = "storage/documents"
     max_upload_size_mb: int = 10
+    chunk_size: int = 1000
+    chunk_overlap: int = 200
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", case_sensitive=False, extra="ignore"
