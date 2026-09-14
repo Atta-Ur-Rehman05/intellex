@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from app.core.database import Base, SessionLocal, engine
 from app.main import app
 from app.models.document import Document
+from app.models.document_chunk import DocumentChunk
 from app.models.user import User
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +21,7 @@ def register_and_login(email: str) -> dict[str, str]:
 
 def cleanup() -> None:
     with SessionLocal() as db:
+        db.query(DocumentChunk).delete()
         db.query(Document).delete()
         db.query(User).delete()
         db.commit()
@@ -31,7 +33,9 @@ def test_upload_list_rename_and_delete_document() -> None:
     response = client.post("/api/v1/documents", headers=headers, files={"file": ("notes.txt", b"hello", "text/plain")})
     assert response.status_code == 201
     document = response.json()
-    assert document["status"] == "processing"
+    assert document["status"] == "ready"
+    with SessionLocal() as db:
+        assert db.query(DocumentChunk).filter(DocumentChunk.document_id == UUID(document["id"])).count() == 1
     with SessionLocal() as db:
         stored = db.get(Document, UUID(document["id"]))
         assert stored is not None and Path(stored.file_path).is_file()
@@ -60,6 +64,7 @@ def test_document_upload_validation_and_ownership() -> None:
     other = register_and_login("other@example.com")
     uploaded = client.post("/api/v1/documents", headers=owner, files={"file": ("file.pdf", b"%PDF", "application/pdf")})
     assert uploaded.status_code == 201
+    assert uploaded.json()["status"] == "failed"
     document_id = uploaded.json()["id"]
     assert client.get(f"/api/v1/documents/{document_id}", headers=other).status_code == 404
     assert client.patch(f"/api/v1/documents/{document_id}", headers=other, json={"name": "Nope"}).status_code == 404
