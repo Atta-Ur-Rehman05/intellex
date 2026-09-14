@@ -4,6 +4,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.models.document import Document
+from app.repositories.document_chunks import DocumentChunkRepository
 
 
 class DocumentRepository:
@@ -34,5 +35,6 @@ class DocumentRepository:
         return document
 
     def delete(self, document: Document) -> None:
+        DocumentChunkRepository(self.db).delete_by_document_id(document.id)
         self.db.execute(delete(Document).where(Document.id == document.id))
         self.db.commit()
