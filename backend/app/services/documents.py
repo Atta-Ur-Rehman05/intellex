@@ -10,6 +10,7 @@ from app.models.document import Document, DocumentStatus
 from app.repositories.documents import DocumentRepository
 from app.schemas.document import DocumentUpdate
 from app.storage.local import FileTooLargeError, LocalDocumentStorage
+from app.services.document_processing import DocumentProcessingService
 
 ALLOWED_TYPES = {".pdf": "application/pdf", ".txt": "text/plain"}
 
@@ -34,11 +35,15 @@ class DocumentService:
         try:
             saved_path, file_size = await self.storage.save(document_id, upload)
             filename = Path(upload.filename or "upload").name
-            return self.repository.create(
+            document = self.repository.create(
                 id=document_id, user_id=user_id, name=Path(filename).stem[:255], original_filename=filename[:255],
                 file_path=saved_path, file_size=file_size, mime_type=upload.content_type,
                 status=DocumentStatus.PROCESSING.value,
             )
+            try:
+                return DocumentProcessingService(self.repository.db).process(document)
+            except Exception:
+                return document
         except FileTooLargeError:
             raise HTTPException(status_code=status.HTTP_413_CONTENT_TOO_LARGE, detail="File exceeds the maximum upload size") from None
         except SQLAlchemyError:
